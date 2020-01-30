@@ -7,10 +7,10 @@
 #include "component.hpp"
 
 namespace planes::engine::ecs {
-    using Entity = std::uint16_t;
-    using Signature = std::bitset<planes::engine::ecs::MAX_NUM_COMPONENTS>;
+  using Entity = std::uint16_t;
+  using Signature = std::bitset<planes::engine::ecs::MAX_NUM_COMPONENTS>;
 
-    const std::uint16_t MAX_NUM_ENTITIES = 10000;
+  const std::uint16_t MAX_NUM_ENTITIES = 10000;
 }
 
 #endif

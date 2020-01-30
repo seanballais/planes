@@ -4,9 +4,9 @@
 #include <cstdint>
 
 namespace planes::engine::ecs {
-    using ComponentType = std::uint8_t;
+  using ComponentType = std::uint8_t;
 
-    const std::uint8_t MAX_NUM_COMPONENTS = 64;
+  const std::uint8_t MAX_NUM_COMPONENTS = 64;
 }
 
 #endif

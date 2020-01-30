@@ -1,0 +1,389 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "tests/planes/engine/ecs/entity.cpp",
+			"settings":
+			{
+				"buffer_size": 650,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/planes/engine/ecs/entity.hpp",
+			"settings":
+			{
+				"buffer_size": 336,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "tests/main.cpp",
+			"settings":
+			{
+				"buffer_size": 47,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/planes/engine/ecs/component.hpp",
+			"settings":
+			{
+				"buffer_size": 228,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 143.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/seanballais/Code/Projects/planes",
+		"/home/seanballais/Code/Projects/planes/src",
+		"/home/seanballais/Code/Projects/planes/src/planes",
+		"/home/seanballais/Code/Projects/planes/src/planes/engine",
+		"/home/seanballais/Code/Projects/planes/src/planes/engine/ecs",
+		"/home/seanballais/Code/Projects/planes/tests",
+		"/home/seanballais/Code/Projects/planes/tests/planes",
+		"/home/seanballais/Code/Projects/planes/tests/planes/engine",
+		"/home/seanballais/Code/Projects/planes/tests/planes/engine/ecs"
+	],
+	"file_history":
+	[
+		"/home/seanballais/Code/Projects/planes/planes.sublime-project",
+		"/home/seanballais/Code/Projects/planes/tests/planes/engine/ecs/entity.cpp",
+		"/home/seanballais/Code/Projects/planes/.gitignore",
+		"/home/seanballais/Code/Projects/planes/tests/main.cpp",
+		"/home/seanballais/Code/Projects/planes/src/planes/engine/ecs/entity.hpp",
+		"/home/seanballais/Code/Projects/planes/tests/engine/ecs/entity.cpp",
+		"/home/seanballais/Code/Projects/planes/src/engine/ecs/component.cpp",
+		"/home/seanballais/Code/Projects/planes/src/engine/ecs/component.hpp",
+		"/home/seanballais/Code/Projects/planes/conanfile.txt",
+		"/home/seanballais/Code/Projects/planes/src/engine/ecs/entity.hpp",
+		"/home/seanballais/Code/Projects/planes/src/engine/ecs/entity.cpp",
+		"/home/seanballais/Code/Projects/planes/src/engine/ecs/ecs.hpp",
+		"/home/seanballais/Code/Projects/planes/src/engine/ecs/ecs.cpp",
+		"/home/seanballais/Code/Projects/planes/build/conaninfo.txt",
+		"/home/seanballais/Code/Projects/planes/build/conan.lock",
+		"/home/seanballais/Code/Projects/planes/build/conanbuildinfo.cmake",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/data_autogenerator/_class_autogenerator.py",
+		"/home/seanballais/Code/Practice/Code Jam/input.txt",
+		"/home/seanballais/Code/Practice/Code Jam/output.txt",
+		"/home/seanballais/Code/Practice/Code Jam/input.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/models.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/gui.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/app.py",
+		"/home/seanballais/Code/Learning/learn-rustlang/fc-temperature/src/main.rs",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/bin/name_generator",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/data_autogenerator/__init__.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/class_autogenerator.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/scheduler/__init__.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/.gitignore",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/data/names.txt",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/utils.py",
+		"/home/seanballais/.local/share/virtualenvs/System-m3qt_Ich/lib/python3.7/site-packages/peewee.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/__init__.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/scheduler/_scheduler.py",
+		"/home/seanballais/Code/Learning/learn-rustlang/guessing_game/Cargo.toml",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/settings.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/scheduler/_utils.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/scheduler/_exceptions.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/scheduler/_generator.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/scheduler.py",
+		"/home/seanballais/Organizations/TEDxMagsaysayBlvd/TEDxAnibongWomen/2019/Certificates/names.txt",
+		"/home/seanballais/Organizations/TEDxMagsaysayBlvd/TEDxAnibongWomen/2019/Certificates/Delegates.svg",
+		"/home/seanballais/Organizations/TEDxMagsaysayBlvd/TEDxAnibongWomen/2019/Certificates/Test 1.svg",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/models/__init__.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/setup.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/_version.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/metadata.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/Pipfile",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/gui/gui.py",
+		"/home/seanballais/Documents/Academics/UPVTC/Subjects/Thesis/System/upvtc_ct/gui/__init__.py"
+	],
+	"find":
+	{
+		"height": 25.0
+	},
+	"find_in_files":
+	{
+		"height": 112.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "tests/planes/engine/ecs/entity.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 650,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/planes/engine/ecs/entity.hpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 336,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								173,
+								173
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "tests/main.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 47,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "src/planes/engine/ecs/component.hpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 228,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								174,
+								174
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 25.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "planes.sublime-project",
+	"replace":
+	{
+		"height": 46.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 205.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
