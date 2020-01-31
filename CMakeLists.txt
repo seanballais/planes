@@ -1,7 +1,7 @@
 ################################################################################
 # Set up CMake.                                                                #
 ################################################################################
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
 project(planes)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -13,8 +13,10 @@ include("BuildType")
 include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 conan_basic_setup()
 
-# Make sure we're using C++ 11 when compiling the main executaBLE.
-set(CMAKE_CXX_STANDARD 11)
+# Make sure we're using C++ 17 when compiling the main executaBLE.
+# We need to use C++ 17 since we're using the new way of declaring namespaces
+# that is only available in C++ 17 (and likely in future versions).
+set(CMAKE_CXX_STANDARD 17)
 
 ################################################################################
 # Set up compilation of the app.                                               #

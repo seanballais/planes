@@ -6,7 +6,7 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-if (CMAKE_BUILD_TYPE EQUAL Debug)
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
     add_compile_definitions(DEBUG)
 endif()
 
