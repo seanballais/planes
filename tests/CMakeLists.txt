@@ -1,7 +1,7 @@
 ################################################################################
 # Set up CMake.                                                                #
 ################################################################################
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
 
 ################################################################################
 # Set up compilation of the tests                                              #
@@ -13,4 +13,4 @@ target_link_libraries(planes-test ${CONAN_LIBS})
 
 add_test(NAME planes-test
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-         COMMAND ${CMAKE_BINARY_DIR}/bin/planes-test --force-colour)
+         COMMAND ${CMAKE_BINARY_DIR}/bin/planes-test)

@@ -19,7 +19,11 @@
 // following link:
 // https://github.com/catchorg/Catch2/issues/553
 namespace planes::utils {
-  class AssertionError : public std::runtime_error {}
+  class AssertionError : public std::runtime_error
+  {
+  public:
+    AssertionError(std::string msg) : std::runtime_error(msg) {}
+  };
 
   inline void assert_impl(bool hasAssertPassed, std::string expr,
                           std::string file, std::string func, int line)
@@ -33,7 +37,7 @@ namespace planes::utils {
     }
   }
 
-  #define ASSERT(assertion) assert_impl((assertion), #assertion,
+  #define ASSERT(assertion) assert_impl((assertion), #assertion, \
                                         __FILE__, __func__, __LINE__)
 }
 #else

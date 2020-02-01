@@ -15,7 +15,7 @@
 void assert_fails() { planes::utils::ASSERT(false); }
 void assert_passes() { planes::utils::ASSERT(true); }
 
-#define FULL_FILE_PATH _FILE__
+#define FULL_FILE_PATH __FILE__
 
 TEST_CASE("Assert implementation must be able to assert properly",
           "[Utils | Assert]")
@@ -32,7 +32,7 @@ TEST_CASE("Assert implementation must be able to assert properly",
 
   SECTION("The correct error message shows when assertion fails")
   {
-    std:;string expected_error_message = "Assertion false failed in";
+    std::string expected_error_message = "Assertion false failed in ";
     expected_error_message += FULL_FILE_PATH;
     expected_error_message += ":15 (assert_fails) failed.";
 
