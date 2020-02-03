@@ -4,8 +4,6 @@
 // https://stackoverflow.com/q/6778496/1116098
 #define private public
 
-#include <bitset>
-
 #include <catch2/catch.hpp>
 
 #include <planes/engine/ecs/component.hpp>
@@ -36,23 +34,77 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
   SECTION("Deleting entities should be done properly")
   {
     #if DEBUG
-    SECTION("Deleting entity IDs not within the proper range"
+    SECTION("Deleting entity IDs not within the proper range "
             + "will cause an assertion error")
     {
       // Passing an ID of MAX_NUM_ENTITIES should raise an error since
       // the entity IDs start at 0.
       REQUIRE_THROWS_AS(entityManager.deleteEntity(MAX_NUM_ENTITIES),
-                        AssertionError)
+                        AssertionError);
     }
     #endif
 
-    SECTION("Deleted entity's signature must be cleared")
+    SECTION("Deleted entity's signature must be cleared on deletion")
     {
       Entity entity = entityManager.createEntity();
       entityManager.deleteEntity(entity);
 
-      std::bitset<MAX_NUM_COMPONENTS> emptySignature;
+      // Using .getSignature() here will result in an assertion error.
+      Signature emptySignature;
       REQUIRE(entityManager.entitySignatures[entity] == emptySignature)
+    }
+  }
+
+  SECTION("Setting the signature of entities should be done properly")
+  {
+    SECTION("Entity must have its signature set correctly")
+    {
+      Entity entity = entityManager.createEntity();
+      
+      Signature randomSignature;
+      randomSignature[0] = 1;
+      entityManager.setSignature(entity, randomSignature);
+
+      REQUIRE(entityManager.getSignature(entity) == randomSignature);
+    }
+
+    #if DEBUG
+    SECTION("Setting a signature to a non-existent entity will cause an "
+            + "assertion error")
+    {
+      Entity entity = entityManager.createEntity();
+
+      // To make sure we use a non-existent entity.
+      entityManager.deleteEntity(entity);
+
+      Signature emptySignature;
+      REQUIRE_THROWS_AS(entityManager.setSignature(entity, emptySignature),
+                        AssertionError);
+    }
+    #endif
+  }
+
+  SECTION("Getting the signature of entities should be done properly")
+  {
+    SECTION("Getting the entity signature must give entity's actual signature")
+    {
+      Entity entity = entityManager.createEntity();
+      
+      Signature randomSignature;
+      randomSignature[0] = 1;
+
+      REQUIRE(entityManager.getSignature(entity) == randomSignature);
+    }
+
+    SECTION("Getting a signature of a non-existent entity will cause an "
+            + "assertion error")
+    {
+      Entity entity = entityManager.createEntity();
+
+      // To make sure we use a non-existent entity.
+      entityManager.deleteEntity(entity);
+
+      REQUIRE_THROWS_AS(entityManager.getSignature(entity), AssertionError);
     }
   }
 }
