@@ -1,13 +1,13 @@
+// Assert tests must only be done during debug compilation, since asserts only
+// work in debug mode. So, it doesn't make sense to run this test when
+// compiling for release mode.
+#if DEBUG
 #include <string>
 
 #include <catch2/catch.hpp>
 
 #include <planes/utils/assert.hpp>
 
-// Assert tests must only be done during debug compilation, since asserts only
-// work in debug mode. So, it doesn't make sense to run this test when
-// compiling for release mode.
-#if DEBUG
 // We got to use functions to raise an assertion error so that we are able to
 // to deterministically test assert(). Changing the position of the fail test
 // function, assert_fails(), below requires slightly modifying the unit test
