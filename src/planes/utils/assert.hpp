@@ -18,7 +18,8 @@
 // without having to resort to a more complicated approach discussed in the
 // following link:
 // https://github.com/catchorg/Catch2/issues/553
-namespace planes::utils {
+namespace planes::utils
+{
   class AssertionError : public std::runtime_error
   {
   public:
@@ -41,7 +42,8 @@ namespace planes::utils {
                                         __FILE__, __func__, __LINE__)
 }
 #else
-namespace planes::utils {
+namespace planes::utils
+{
   #define ASSERT(assertion) ((void)0)
 }
 #endif

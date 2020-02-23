@@ -1,13 +1,7 @@
-// We have to do this little hack so that we can be sure that the behaviour
-// of our entity manager is what we expected. This hack is only guaranteed to
-// work in Linux/GCC for now. See more information in:
-// https://stackoverflow.com/q/6778496/1116098
-#define private public
-
 #include <catch2/catch.hpp>
 
 #include <planes/engine/ecs/component.hpp>
-#include <planes/engine/ecs/entity.hpp>>
+#include <planes/engine/ecs/entity.hpp>
 #include <planes/utils/assert.hpp>
 
 using namespace planes::engine::ecs;
@@ -19,7 +13,7 @@ using namespace planes::utils;
 TEST_CASE("Entity Manager must be able to manage entities properly",
 		      "[ECS | Entity]")
 {
-  EntityManager entityManager();
+  EntityManager<5> entityManager();
 
   SECTION("Creating entities should be done properly")
   {
@@ -27,22 +21,30 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
     {
       Entity entity = entityManager.createEntity();
 
-      REQUIRE(entity >= 0 && entity < MAX_NUM_ENTITIES);
+      REQUIRE(entity >= 0 && entity < entityManager.MAX_NUM_ENTITIES);
+    }
+
+    SECTION("Creating more entities than the maximum should cause an exception")
+    {
+      for (int i = 0; i < entityManager.MAX_NUM_ENTITIES; i++) {
+        entityManager.createEntity();
+      }
+
+      REQUIRE_THROWS_AS(entityManager.createEntity(), TooManyEntitiesError);
     }
   }
 
   SECTION("Deleting entities should be done properly")
   {
-    #if DEBUG
     SECTION("Deleting entity IDs not within the proper range "
-            + "will cause an assertion error")
+            + "will cause an exception")
     {
       // Passing an ID of MAX_NUM_ENTITIES should raise an error since
       // the entity IDs start at 0.
-      REQUIRE_THROWS_AS(entityManager.deleteEntity(MAX_NUM_ENTITIES),
-                        AssertionError);
+      REQUIRE_THROWS_AS(
+        entityManager.deleteEntity(entityManager.MAX_NUM_ENTITIES),
+        OutOfRangeError);
     }
-    #endif
 
     SECTION("Deleted entity's signature must be cleared on deletion")
     {
@@ -68,9 +70,8 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
       REQUIRE(entityManager.getSignature(entity) == randomSignature);
     }
 
-    #if DEBUG
     SECTION("Setting a signature to a non-existent entity will cause an "
-            + "assertion error")
+            + "exception")
     {
       Entity entity = entityManager.createEntity();
 
@@ -79,9 +80,8 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
 
       Signature emptySignature;
       REQUIRE_THROWS_AS(entityManager.setSignature(entity, emptySignature),
-                        AssertionError);
+                        NonExistentEntityError);
     }
-    #endif
   }
 
   SECTION("Getting the signature of entities should be done properly")
@@ -104,7 +104,8 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
       // To make sure we use a non-existent entity.
       entityManager.deleteEntity(entity);
 
-      REQUIRE_THROWS_AS(entityManager.getSignature(entity), AssertionError);
+      REQUIRE_THROWS_AS(entityManager.getSignature(entity),
+                        NonExistentEntityError);
     }
   }
 }
