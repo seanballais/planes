@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <string>
 
 #include <catch2/catch.hpp>
@@ -23,7 +24,7 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
     {
       Entity entity = entityManager.createEntity();
 
-      REQUIRE(entity >= 0 && entity < entityManager.kMaxNumEntities);
+      REQUIRE((entity >= 0 && entity < entityManager.kMaxNumEntities));
     }
 
     SECTION("Creating more entities than the maximum should cause an exception")
@@ -34,28 +35,34 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
 
       REQUIRE_THROWS_AS(entityManager.createEntity(), TooManyEntitiesError);
     }
+
+    SECTION("Creates an entity with an empty signature")
+    {
+      Entity entity = entityManager.createEntity();
+
+      REQUIRE(entityManager.getSignature(entity) == 0);
+    }
   }
 
   SECTION("Deleting entities should be done properly")
   {
     SECTION(std::string("Deleting entity IDs not within the proper range ")
-            + std::string("will cause an exception"))
+            + std::string("will cause an out of range exception"))
     {
       // Passing an ID of kMaxNumEntities should raise an error since
       // the entity IDs start at 0.
       REQUIRE_THROWS_AS(
         entityManager.deleteEntity(entityManager.kMaxNumEntities),
-        OutOfRangeError);
+        std::out_of_range);
     }
 
-    SECTION("Deleted entity's signature must be cleared on deletion")
+    SECTION("Deleting an already deleted entity should cause an exception")
     {
       Entity entity = entityManager.createEntity();
       entityManager.deleteEntity(entity);
 
-      // Using .getSignature() here will result in an assertion error.
-      Signature emptySignature;
-      REQUIRE(entityManager.entitySignatures[entity] == emptySignature)
+      REQUIRE_THROWS_AS(entityManager.deleteEntity(entity),
+                        NonExistentEntityError);
     }
   }
 
@@ -72,8 +79,16 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
       REQUIRE(entityManager.getSignature(entity) == randomSignature);
     }
 
-    SECTION("Setting a signature to a non-existent entity will cause an "
-            + "exception")
+    SECTION("Setting a signature to an invalid entity will cause an exception")
+    {
+      Signature signature{1};
+      REQUIRE_THROWS_AS(
+        entityManager.setSignature(entityManager.kMaxNumEntities, signature),
+        std::out_of_range);
+    }
+
+    SECTION(std::string("Setting a signature to a non-existent ")
+            + std::string("entity will cause an exception"))
     {
       Entity entity = entityManager.createEntity();
 
@@ -91,15 +106,24 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
     SECTION("Getting the entity signature must give entity's actual signature")
     {
       Entity entity = entityManager.createEntity();
-      
-      Signature randomSignature;
-      randomSignature[0] = 1;
+      Signature signature{1};
+      entityManager.setSignature(entity, signature);
 
-      REQUIRE(entityManager.getSignature(entity) == randomSignature);
+      REQUIRE(entityManager.getSignature(entity) == signature);
     }
 
-    SECTION("Getting a signature of a non-existent entity will cause an "
-            + "assertion error")
+    SECTION(std::string("Getting the signature of an invalid entity ")
+            + std::string("will cause an out of range exception"))
+    {
+      // Passing an ID of kMaxNumEntities should raise an error since
+      // the entity IDs start at 0.
+      REQUIRE_THROWS_AS(
+        entityManager.getSignature(entityManager.kMaxNumEntities),
+        std::out_of_range);
+    }
+
+    SECTION(std::string("Getting a signature of a non-existent ")
+            + std::string("entity will cause an exception"))
     {
       Entity entity = entityManager.createEntity();
 

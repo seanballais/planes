@@ -3,6 +3,7 @@
 
 #include <bitset>
 #include <cstdint>
+#include <set>
 #include <stdexcept>
 #include <queue>
 
@@ -20,11 +21,18 @@ namespace planes::engine::ecs
     EntityManager();
 
     Entity createEntity();
+    void deleteEntity(Entity entity);
+    Signature getSignature(Entity entity);
+    void setSignature(Entity entity, Signature signature);
 
     const std::uint16_t kMaxNumEntities = maxNumEntities;
   private:
-    Signature entities[maxNumEntities];
-    std::queue<Entity> unusedEntities;
+    bool isEntityInRange(Entity entity);
+    bool doesEntityExist(Entity entity);
+
+    Signature entitySignatures[maxNumEntities];
+    std::deque<Entity> unusedEntitiesQueue;
+    std::set<Entity> unusedEntities;
   };
 
   const std::uint16_t kDefaultMaxNumEntities = 10000;
@@ -33,7 +41,13 @@ namespace planes::engine::ecs
   class TooManyEntitiesError : public std::runtime_error
   {
   public:
-    TooManyEntitiesError(const std::string& what_arg);
+    TooManyEntitiesError(const char* what_arg);
+  };
+
+  class NonExistentEntityError : public std::runtime_error
+  {
+  public:
+    NonExistentEntityError(const char* what_arg);
   };
 }
 
