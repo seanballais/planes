@@ -1,3 +1,5 @@
+#include <string>
+
 #include <catch2/catch.hpp>
 
 #include <planes/engine/ecs/component.hpp>
@@ -13,7 +15,7 @@ using namespace planes::utils;
 TEST_CASE("Entity Manager must be able to manage entities properly",
 		      "[ECS | Entity]")
 {
-  EntityManager<5> entityManager();
+  EntityManager<5> entityManager{};
 
   SECTION("Creating entities should be done properly")
   {
@@ -21,12 +23,12 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
     {
       Entity entity = entityManager.createEntity();
 
-      REQUIRE(entity >= 0 && entity < entityManager.MAX_NUM_ENTITIES);
+      REQUIRE(entity >= 0 && entity < entityManager.kMaxNumEntities);
     }
 
     SECTION("Creating more entities than the maximum should cause an exception")
     {
-      for (int i = 0; i < entityManager.MAX_NUM_ENTITIES; i++) {
+      for (int i = 0; i < entityManager.kMaxNumEntities; i++) {
         entityManager.createEntity();
       }
 
@@ -36,13 +38,13 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
 
   SECTION("Deleting entities should be done properly")
   {
-    SECTION("Deleting entity IDs not within the proper range "
-            + "will cause an exception")
+    SECTION(std::string("Deleting entity IDs not within the proper range ")
+            + std::string("will cause an exception"))
     {
-      // Passing an ID of MAX_NUM_ENTITIES should raise an error since
+      // Passing an ID of kMaxNumEntities should raise an error since
       // the entity IDs start at 0.
       REQUIRE_THROWS_AS(
-        entityManager.deleteEntity(entityManager.MAX_NUM_ENTITIES),
+        entityManager.deleteEntity(entityManager.kMaxNumEntities),
         OutOfRangeError);
     }
 
