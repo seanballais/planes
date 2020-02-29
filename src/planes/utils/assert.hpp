@@ -1,5 +1,5 @@
-#ifndef PLANES_UTILS_ASSERT_HPP
-#define PLANES_UTILS_ASSERT_HPP
+#ifndef PLANES_UTILS_ASSERT_HPP_
+#define PLANES_UTILS_ASSERT_HPP_
 
 #ifdef DEBUG
 #include <stdexcept>

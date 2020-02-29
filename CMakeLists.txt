@@ -1,7 +1,7 @@
 ################################################################################
 # Set up CMake.                                                                #
 ################################################################################
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.13)
 project(planes)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -23,10 +23,9 @@ set(CMAKE_CXX_STANDARD 17)
 ################################################################################
 include_directories("${CMAKE_SOURCE_DIR}/src")
 
-set(PROJECT_MAIN "${CMAKE_SOURCE_DIR}/src/main.cpp")
-
-add_executable(planes ${PROJECT_MAIN})
-target_link_libraries(planes ${CONAN_LIBS})
+# Note that the CMakeLists.txt file for the main application is here in this
+# directory.
+add_subdirectory(src)
 
 ################################################################################
 # Set up compilation of the tests.                                             #
