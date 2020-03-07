@@ -11,17 +11,8 @@
 
 namespace planes::engine::ecs
 {
-  class TooManyEntitiesError : public std::runtime_error
-  {
-  public:
-    TooManyEntitiesError(const char* what_arg);
-  };
-
-  class NonExistentEntityError : public std::runtime_error
-  {
-  public:
-    NonExistentEntityError(const char* what_arg);
-  };
+  class TooManyEntitiesError;
+  class NonExistentEntityError;
 
   using Entity = std::uint16_t;
   using Signature = std::bitset<planes::engine::ecs::MAX_NUM_COMPONENTS>;
@@ -100,10 +91,6 @@ namespace planes::engine::ecs
       entitySignatures[entity] = signature;
     }
   private:
-    Signature entitySignatures[maxNumEntities];
-    std::queue<Entity> unusedEntitiesQueue;
-    std::set<Entity> unusedEntities;
-
     bool isEntityInRange(Entity entity)
     {
       return entity >= 0 && entity < kMaxNumEntities;
@@ -114,10 +101,26 @@ namespace planes::engine::ecs
       auto it = this->unusedEntities.find(entity);
       return it == this->unusedEntities.end();
     }
+
+    Signature entitySignatures[maxNumEntities];
+    std::queue<Entity> unusedEntitiesQueue;
+    std::set<Entity> unusedEntities;
   };
 
   const std::uint16_t kDefaultMaxNumEntities = 10000;
   using DefaultEntityManager = EntityManager<kDefaultMaxNumEntities>();
+
+  class TooManyEntitiesError : public std::runtime_error
+  {
+  public:
+    TooManyEntitiesError(const char* what_arg);
+  };
+
+  class NonExistentEntityError : public std::runtime_error
+  {
+  public:
+    NonExistentEntityError(const char* what_arg);
+  };
 }
 
 #endif
