@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <queue>
 
-#include "component.hpp"
+#include <planes/engine/ecs/constants.hpp>
 
 namespace planes::engine::ecs
 {
@@ -21,11 +21,9 @@ namespace planes::engine::ecs
   class EntityManager
   {
   public:
-    const std::uint16_t kMaxNumEntities = maxNumEntities;
-
     EntityManager()
     {
-      for (Entity e = 0; e < kMaxNumEntities; e++) {
+      for (Entity e = 0; e < this->kMaxNumEntities; e++) {
         this->unusedEntitiesQueue.push(e);
         this->unusedEntities.insert(e);
         this->entitySignatures[e] = Signature{0};
@@ -38,62 +36,64 @@ namespace planes::engine::ecs
         throw TooManyEntitiesError("Created too many entities than allowed.");
       }
 
-      Entity entity = unusedEntitiesQueue.front();
-      unusedEntitiesQueue.pop();
-      unusedEntities.erase(entity);
+      Entity entity = this->unusedEntitiesQueue.front();
+      this->unusedEntitiesQueue.pop();
+      this->unusedEntities.erase(entity);
 
       return entity;
     }
 
     void deleteEntity(Entity entity)
     {
-      if (!isEntityInRange(entity)) {
+      if (!this->isEntityInRange(entity)) {
         throw std::out_of_range("Attempted to delete an invalid entity.");
       }
 
-      if (!doesEntityExist(entity)) {
+      if (!this->doesEntityExist(entity)) {
         throw NonExistentEntityError(
           "Attempted to delete a non-existent entity.");
       }
 
-      unusedEntitiesQueue.push(entity);
-      unusedEntities.insert(entity);
-      entitySignatures[entity].reset();
+      this->unusedEntitiesQueue.push(entity);
+      this->unusedEntities.insert(entity);
+      this->entitySignatures[entity].reset();
     }
 
     Signature getSignature(Entity entity)
     {
-      if (!isEntityInRange(entity)) {
+      if (!this->isEntityInRange(entity)) {
         throw std::out_of_range(
           "Attempted to get the signature of an invalid entity.");
       }
 
-      if (!doesEntityExist(entity)) {
+      if (!this->doesEntityExist(entity)) {
         throw NonExistentEntityError(
           "Attempted to get the signature of a non-existent entity.");
       }
 
-      return entitySignatures[entity];
+      return this->entitySignatures[entity];
     }
 
     void setSignature(Entity entity, Signature signature)
     {
-      if (!isEntityInRange(entity)) {
+      if (!this->isEntityInRange(entity)) {
         throw std::out_of_range(
           "Attempted to set the signature of an invalid entity.");
       }
 
-      if (!doesEntityExist(entity)) {
+      if (!this->doesEntityExist(entity)) {
         throw NonExistentEntityError(
           "Attempted to get the signature of a non-existent entity.");
       }
 
-      entitySignatures[entity] = signature;
+      this->entitySignatures[entity] = signature;
     }
+
+    const std::uint16_t kMaxNumEntities = maxNumEntities;
   private:
     bool isEntityInRange(Entity entity)
     {
-      return entity >= 0 && entity < kMaxNumEntities;
+      return entity >= 0 && entity < this->kMaxNumEntities;
     }
 
     bool doesEntityExist(Entity entity)

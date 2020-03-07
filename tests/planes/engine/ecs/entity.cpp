@@ -5,13 +5,8 @@
 
 #include <planes/engine/ecs/component.hpp>
 #include <planes/engine/ecs/entity.hpp>
-#include <planes/utils/assert.hpp>
 
 using namespace planes::engine::ecs;
-using namespace planes::utils;
-
-// Some test cases will only run when compiling in debug mode. This is because
-// assertion will only be triggered in debug mode.
 
 TEST_CASE("Entity Manager must be able to manage entities properly",
 		      "[ECS | Entity]")
@@ -54,6 +49,7 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
       REQUIRE_THROWS_AS(
         entityManager.deleteEntity(entityManager.kMaxNumEntities),
         std::out_of_range);
+      REQUIRE_THROWS_AS(entityManager.deleteEntity(-1), std::out_of_range);
     }
 
     SECTION("Deleting an already deleted entity should cause an exception")
