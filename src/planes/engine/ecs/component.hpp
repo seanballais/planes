@@ -11,8 +11,6 @@
 namespace planes::engine::ecs {
   class NoComponentForEntityError;
 
-  using ComponentType = std::uint8_t;
-
   class IComponentArray
   {
   public:
