@@ -6,4 +6,8 @@ namespace planes::engine::ecs
 {
   NoComponentForEntityError::NoComponentForEntityError(const char* what_arg)
     : std::runtime_error(what_arg) {}
+
+  UnregisterdComponentTypeError::UnregisteredComponentTypeError(
+      const char* what_arg)
+    : std::runtime_error(what_arg) {}
 }

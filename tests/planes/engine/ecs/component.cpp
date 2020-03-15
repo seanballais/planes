@@ -241,6 +241,14 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
       REQUIRE(componentManager.getComponentTypeIndex<TestComponent0>() == 0);
       REQUIRE(componentManager.getComponentTypeIndex<TestComponent1>() == 1);
     }
+
+    SECTION("Getting the index of a component type that has not been "
+            "registered yet")
+    {
+      REQUIRE_THROWS_AS(
+        componentManager.getComponentTypeIndex<TestComponent0>(),
+        UnregisteredComponentTypeError);
+    }
   }
 
   SECTION("Getting a component of an entity must be done properly")
@@ -308,10 +316,24 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
     SECTION("Getting a component of an entity which does not have a component "
             "that is being obtained should cause an exception")
     {
+      componentManager.registerComponentType<TestComponent1>();
+
       const Entity e = entities[0];
-      componentManager.addComponentType<TestComponent0>();
+      componentManager.addComponentType<TestComponent0>(e);
       REQUIRE_THROWS_AS(componentManager.getComponent<TestComponent1>(e),
                         NoComponentForEntityError);
+    }
+
+    SECTION("Getting a component of an entity, whose type has not been "
+            "registered yet should cause an exception")
+    {
+      // In terms of exception raising, an UnregisteredComponentTypeError
+      // exception will first be raised. Then, if that isn't raised, then
+      // a NoComponentForEntityError will be raised, if conditions are
+      // met for such an exception to be raised.
+      const Entity e = entities[0];
+      REQUIRE_THROWS_AS(componentManager.getComponent<TestComponent0>(e),
+                        UnregisteredComponentTypeError);
     }
   }
 
@@ -352,10 +374,20 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
         componentManager.getComponent<TestComponent0>(deletedEntity);
       })());
     }
+
+    SECTION("Adding a component type to an entity without registering "
+            "the component type first should cause an exception")
+    {
+      const Entity e = entities[0];
+      REQUIRE_THROWS_AS(componentManager.addComponentType<TestComponent0>(e),
+                        UnregisteredComponentTypeError);
+    }
   }
 
   SECTION("Deleting a component from an entity must be done properly")
   {
+    componentManager.registerComponentType<TestComponent0>();
+
     SECTION("Deletes the component of an entity that is within the proper "
             "range")
     {
@@ -387,8 +419,16 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
             "should cause an exception")
     {
       const Entity e = entities[0];
-      REQUIRE_THROWS_AS(componentManager.deleteComponent<TestComponent0>(e),
+      REQUIRE_THROWS_AS(componentManager.deleteComponentType<TestComponent0>(e),
                         NoComponentForEntityError);
+    }
+
+    SECTION("Deleting a component type to an entity without registering "
+            "the component type first should cause an exception")
+    {
+      const Entity e = entities[0];
+      REQUIRE_THROWS_AS(componentManager.deleteComponentType<TestComponent1>(e),
+                        UnregisteredComponentTypeError);
     }
   }
 
