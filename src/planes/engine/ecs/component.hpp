@@ -103,9 +103,9 @@ namespace planes::engine::ecs {
       // There should be an error when a component type has been registered
       // twice.
       const std::string typeName = typeid(T).name();
-      this->typeNameToArrayMap.insert(
+      this->typeNameToArrayMap.insert({
         typeName,
-        std::make_unique<ComponentArray<T>>());
+        std::make_unique<ComponentArray<T>>()});
       this->typeNameToIndexMap.insert({typeName, this->nextComponentTypeIndex});
 
       this->nextComponentTypeIndex++;
@@ -127,8 +127,8 @@ namespace planes::engine::ecs {
       // This should really only be done in debug mode.
       this->checkComponentTypeRegistration<T>();
 
-      return &(this->getComponentTypeArray<T>()
-                    .getComponent(e));
+      return this->getComponentTypeArray<T>()
+                  .getComponent(e);
     }
 
     template <typename T>
@@ -161,7 +161,7 @@ namespace planes::engine::ecs {
       const auto item = this->typeNameToArrayMap.find(typeName);
       if (item == this->typeNameToArrayMap.end()) {
         std::stringstream errorMsgStream;
-        errorMsgStream << "Attempted to get the index of component type, "
+        errorMsgStream << "Attempted to access an unregistered component type, "
                        << typeName << ".";
         const std::string errorMsg = errorMsgStream.str();
         throw UnregisteredComponentTypeError(errorMsg.c_str());
@@ -171,8 +171,11 @@ namespace planes::engine::ecs {
     template <typename T>
     ComponentArray<T>& getComponentTypeArray()
     {
+      this->checkComponentTypeRegistration<T>();
+
       const std::string typeName = typeid(T).name();
-      return *(this->typeNameToArrayMap[typeName]);
+      IComponentArray* const array = this->typeNameToArrayMap[typeName].get();
+      return *(dynamic_cast<ComponentArray<T>*>(array));
     }
 
     std::unordered_map<std::string, std::unique_ptr<IComponentArray>>
