@@ -11,6 +11,8 @@ target_sources(planes-engine-ecs-lib
     PRIVATE
         component.cpp
         entity.cpp
+        system.cpp
+        errors.cpp
 )
 target_link_libraries(planes-engine-ecs-lib
     ${CONAN_LIBS}

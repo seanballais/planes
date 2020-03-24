@@ -37,21 +37,22 @@ namespace planes::engine::ecs {
       this->entityToComponentMap.insert({entity, entityIndex});
     }
 
-    T* getComponent(const Entity entity)
+    T& getComponent(const Entity entity)
     {
       auto item = this->getComponentFromEntity(entity);
       const int entityIndex = item->second;
-      return &(this->components[entityIndex]);
+      return this->components[entityIndex];
     }
 
     void deleteComponent(const Entity entity)
     {
       auto item = this->getComponentFromEntity(entity);
       const int deletedEntityIndex = item->second;
-      this->entityToComponentMap.erase(item);
-      T lastComponent = this->components[components.size() - 1];
+      T lastComponent = this->components.back();
       this->components[deletedEntityIndex] = lastComponent;
       this->components.pop_back();
+
+      this->entityToComponentMap.erase(item);
     }
 
     void notifyEntityDeleted(const Entity entity) override
@@ -122,7 +123,7 @@ namespace planes::engine::ecs {
     }
 
     template <typename T>
-    T* getComponent(const Entity e)
+    T& getComponent(const Entity e)
     {
       // This should really only be done in debug mode.
       this->checkComponentTypeRegistration<T>();

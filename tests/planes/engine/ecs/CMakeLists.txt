@@ -10,4 +10,5 @@ target_sources(planes-test
     PRIVATE
         component.cpp
         entity.cpp
+        system.cpp
 )

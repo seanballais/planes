@@ -2,7 +2,6 @@
 #define PLANES_ENGINE_ECS_ENTITY_HPP_
 
 #include <bitset>
-#include <cstdint>
 #include <set>
 #include <stdexcept>
 #include <queue>
@@ -11,13 +10,13 @@
 
 namespace planes::engine::ecs
 {
-  class TooManyEntitiesError;
   class NonExistentEntityError;
+  class TooManyEntitiesError;
 
-  using Entity = std::uint16_t;
+  using Entity = size_t;
   using Signature = std::bitset<planes::engine::ecs::MAX_NUM_COMPONENTS>;
 
-  template<std::uint16_t maxNumEntities>
+  template<size_t maxNumEntities>
   class EntityManager
   {
   public:

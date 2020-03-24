@@ -16,10 +16,10 @@ TEST_CASE("Component Array must be able to manage its components properly ",
     int x;
   };
 
-  EntityManager<5> entityManager{};
+  const unsigned int numTestEntities = 5;
+  EntityManager<numTestEntities> entityManager{};
   ComponentArray<TestComponent> components{};
 
-  int numTestEntities = 5;
   Entity entities[numTestEntities];
   for (int i = 0; i < numTestEntities; i++) {
     entities[i] = entityManager.createEntity();
@@ -53,8 +53,8 @@ TEST_CASE("Component Array must be able to manage its components properly ",
       }
 
       for (int i = 0; i < numTestEntities - 2; i++) {
-        TestComponent* tc = components.getComponent(entities[i]);
-        REQUIRE(tc->x == i);
+        TestComponent& tc = components.getComponent(entities[i]);
+        REQUIRE(tc.x == i);
       }
     }
 
@@ -63,7 +63,7 @@ TEST_CASE("Component Array must be able to manage its components properly ",
     {
       components.addComponent(entities[0], TestComponent{});
       REQUIRE_NOTHROW(([&] {
-        TestComponent* tc = components.getComponent(entities[0]);
+        TestComponent& tc = components.getComponent(entities[0]);
       })());
     }
 
@@ -263,15 +263,15 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
 
       REQUIRE_NOTHROW(([&] {
         for (int i = 0; i < numTestEntities - 2; i++) {
-          TestComponent0* tc = componentManager
+          TestComponent0& tc = componentManager
                                  .getComponent<TestComponent0>(entities[i]);
-          tc->x = i;
+          tc.x = i;
         }
 
         for (int i = 0; i < numTestEntities - 2; i++) {
-          TestComponent0* tc = componentManager
+          TestComponent0& tc = componentManager
                                  .getComponent<TestComponent0>(entities[i]);
-          REQUIRE(tc->x == i);
+          REQUIRE(tc.x == i);
         }
       }));
     }
@@ -282,7 +282,7 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
       const Entity e = entities[0];
       componentManager.addComponentType<TestComponent0>(e);
       REQUIRE_NOTHROW(([&] {
-        TestComponent0* tc = componentManager.getComponent<TestComponent0>(e);
+        TestComponent0& tc = componentManager.getComponent<TestComponent0>(e);
       }));
     }
 
