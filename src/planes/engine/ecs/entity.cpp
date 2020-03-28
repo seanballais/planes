@@ -4,9 +4,9 @@
 
 namespace planes::engine::ecs
 {
-	NonExistentEntityError::NonExistentEntityError(const char* what_arg)
+  NonExistentEntityError::NonExistentEntityError(const char* what_arg)
     : std::runtime_error(what_arg) {}
 
   TooManyEntitiesError::TooManyEntitiesError(const char* what_arg)
-	: std::runtime_error(what_arg) {}
+	  : std::runtime_error(what_arg) {}
 }
