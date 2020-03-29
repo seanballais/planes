@@ -76,7 +76,7 @@ namespace planes::engine::ecs {
         errorMsgStream << "Entity" << entity
                        << " does not have a component we hold.";
         const std::string errorMsg = errorMsgStream.str();
-        throw NoComponentForEntityError(errorMsg.c_str());
+        throw NoComponentForEntityError{errorMsg.c_str()};
       }
 
       return item;
@@ -98,21 +98,21 @@ namespace planes::engine::ecs {
     ComponentManager()
       : nextComponentTypeIndex(0) {}
 
-    template <typename T>
+    template <class T>
     void registerComponentType()
     {
       // There should be an error when a component type has been registered
       // twice.
       const std::string typeName = typeid(T).name();
       this->typeNameToArrayMap.insert({
-        typeName,
-        std::make_unique<ComponentArray<T>>()});
+        typeName, std::make_unique<ComponentArray<T>>()
+      });
       this->typeNameToIndexMap.insert({typeName, this->nextComponentTypeIndex});
 
       this->nextComponentTypeIndex++;
     }
 
-    template <typename T>
+    template <class T>
     unsigned int getComponentTypeIndex()
     {
       // This should really only be done in debug mode.
@@ -122,7 +122,7 @@ namespace planes::engine::ecs {
       return this->typeNameToIndexMap[typeName];
     }
 
-    template <typename T>
+    template <class T>
     T& getComponent(const Entity e)
     {
       // This should really only be done in debug mode.
@@ -132,7 +132,7 @@ namespace planes::engine::ecs {
                   .getComponent(e);
     }
 
-    template <typename T>
+    template <class T>
     void addComponentType(const Entity e)
     {
       // This should really only be done in debug mode.
@@ -142,7 +142,7 @@ namespace planes::engine::ecs {
            .addComponent(e, T{});
     }
 
-    template <typename T>
+    template <class T>
     void deleteComponentType(const Entity e)
     {
       // This should really only be done in debug mode.
@@ -155,28 +155,28 @@ namespace planes::engine::ecs {
     void notifyEntityDeleted(const Entity e);
 
   private:
-    template <typename T>
+    template <class T>
     void checkComponentTypeRegistration() const
     {
       const std::string typeName = typeid(T).name();
       const auto item = this->typeNameToArrayMap.find(typeName);
       if (item == this->typeNameToArrayMap.end()) {
         std::stringstream errorMsgStream;
-        errorMsgStream << "Attempted to access an unregistered component type, "
+        errorMsgStream << "Attempted to use an unregistered component type, "
                        << typeName << ".";
         const std::string errorMsg = errorMsgStream.str();
-        throw UnregisteredComponentTypeError(errorMsg.c_str());
+        throw UnregisteredComponentTypeError{errorMsg.c_str()};
       }
     }
 
-    template <typename T>
+    template <class T>
     ComponentArray<T>& getComponentTypeArray()
     {
       this->checkComponentTypeRegistration<T>();
 
       const std::string typeName = typeid(T).name();
-      IComponentArray* const array = this->typeNameToArrayMap[typeName].get();
-      return *(dynamic_cast<ComponentArray<T>*>(array));
+      IComponentArray& array = *(this->typeNameToArrayMap[typeName].get());
+      return dynamic_cast<ComponentArray<T>&>(array);
     }
 
     std::unordered_map<std::string, std::unique_ptr<IComponentArray>>

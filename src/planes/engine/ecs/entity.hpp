@@ -10,10 +10,19 @@
 
 namespace planes::engine::ecs
 {
-  class NonExistentEntityError;
-  class TooManyEntitiesError;
+  class TooManyEntitiesError : public std::runtime_error
+  {
+  public:
+    TooManyEntitiesError(const char* what_arg);
+  };
 
-  using Entity = size_t;
+  class NonExistentEntityError : public std::runtime_error
+  {
+  public:
+    NonExistentEntityError(const char* what_arg);
+  };
+
+  using Entity = unsigned int;
   using Signature = std::bitset<planes::engine::ecs::MAX_NUM_COMPONENTS>;
 
   template<size_t maxNumEntities>
@@ -32,7 +41,7 @@ namespace planes::engine::ecs
     Entity createEntity()
     {
       if (unusedEntities.empty()) {
-        throw TooManyEntitiesError("Created too many entities than allowed.");
+        throw TooManyEntitiesError{"Created too many entities than allowed."};
       }
 
       Entity entity = this->unusedEntitiesQueue.front();
@@ -45,12 +54,12 @@ namespace planes::engine::ecs
     void deleteEntity(Entity entity)
     {
       if (!this->isEntityInRange(entity)) {
-        throw std::out_of_range("Attempted to delete an invalid entity.");
+        throw std::out_of_range{"Attempted to delete an invalid entity."};
       }
 
       if (!this->doesEntityExist(entity)) {
-        throw NonExistentEntityError(
-          "Attempted to delete a non-existent entity.");
+        throw NonExistentEntityError{
+          "Attempted to delete a non-existent entity."};
       }
 
       this->unusedEntitiesQueue.push(entity);
@@ -61,13 +70,13 @@ namespace planes::engine::ecs
     Signature getSignature(Entity entity)
     {
       if (!this->isEntityInRange(entity)) {
-        throw std::out_of_range(
-          "Attempted to get the signature of an invalid entity.");
+        throw std::out_of_range{
+          "Attempted to get the signature of an invalid entity."};
       }
 
       if (!this->doesEntityExist(entity)) {
-        throw NonExistentEntityError(
-          "Attempted to get the signature of a non-existent entity.");
+        throw NonExistentEntityError{
+          "Attempted to get the signature of a non-existent entity."};
       }
 
       return this->entitySignatures[entity];
@@ -104,21 +113,6 @@ namespace planes::engine::ecs
     Signature entitySignatures[maxNumEntities];
     std::queue<Entity> unusedEntitiesQueue;
     std::set<Entity> unusedEntities;
-  };
-
-  const std::uint16_t kDefaultMaxNumEntities = 10000;
-  using DefaultEntityManager = EntityManager<kDefaultMaxNumEntities>();
-
-  class TooManyEntitiesError : public std::runtime_error
-  {
-  public:
-    TooManyEntitiesError(const char* what_arg);
-  };
-
-  class NonExistentEntityError : public std::runtime_error
-  {
-  public:
-    NonExistentEntityError(const char* what_arg);
   };
 }
 

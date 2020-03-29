@@ -25,7 +25,8 @@ namespace planes::engine::ecs
       this->numEntities++;
     } else {
       std::stringstream errorMsgStream;
-      errorMsgStream << "Attempted to add already added entity, " << e;
+      errorMsgStream << "Attempted to add already added entity, "
+                     << e << ".";
       std::string errorMsg = errorMsgStream.str();
 
       throw EntityAlreadyExistsError(errorMsg);
@@ -37,7 +38,8 @@ namespace planes::engine::ecs
     auto item = this->entityToIndexMap.find(e);
     if (item == this->entityToIndexMap.end()) {
       std::stringstream errorMsgStream;
-      errorMsgStream << "Attempted to remove a non-registered entity, " << e;
+      errorMsgStream << "Attempted to remove a non-registered entity, "
+                     << e << ".";
       std::string errorMsg = errorMsgStream.str();
 
       throw UnregisteredEntityError(errorMsg);
@@ -51,6 +53,78 @@ namespace planes::engine::ecs
     }
   }
 
+  bool System::hasEntity(const Entity e) const
+  {
+    return this->entityToIndexMap.find(e) != this->entityToIndexMap.end();
+  }
+
+  Signature System::getSignature() const
+  {
+    return this->signature;
+  }
+
+  SystemManager::SystemManager(ComponentManager& componentManager)
+    : componentManager(componentManager) {}
+
+  void SystemManager::addEntity(const Entity e, const Signature signature)
+  {
+    for (const auto& item : this->nameToSystem) {
+      System* system = item.second.get();
+      if ((signature & system->getSignature()) == system->getSignature()) {
+        // Entity has a signature that is compatible with the system's
+        // signature. They are compatible since the entity has *all* the
+        // components required by the system. This checking mechanism works
+        // like this:
+        //
+        // Applying an AND to a set of bits with itself will give the same value
+        // as the set. Applying an AND to two different sets of bits, where
+        // the second operand set is a subset of the first operand set, will
+        // give the value of the second operand. Having the second operand set
+        // be a subset of the first, in this context, means that the two sets
+        // are compatible. This is how the compatibility check mechanism works.
+        system->addEntity(e);
+      }
+    }
+  }
+
+  void SystemManager::removeEntity(const Entity e)
+  {
+    for (const auto& item : this->nameToSystem) {
+      System* system = item.second.get();
+      if (system->hasEntity(e)) {
+        system->removeEntity(e);
+      }
+    }
+  }
+
+  void SystemManager::notifyEntitySignatureChanged(Entity e,
+                                                   const Signature signature)
+  {
+    for (const auto& item : this->nameToSystem) {
+      System* system = item.second.get();
+      if (system->hasEntity(e)
+          && ((signature & system->getSignature()) != system->getSignature())) {
+        system->removeEntity(e);
+      } else {
+        if ((signature & system->getSignature()) == system->getSignature()) {
+          // Entity has a signature that is compatible with the system's
+          // signature. They are compatible since the entity has *all* the
+          // components required by the system. This checking mechanism works
+          // like this:
+          //
+          // Applying an AND to a set of bits with itself will give the same
+          // value as the set. Applying an AND to two different sets of bits,
+          // where the second operand set is a subset of the first operand set,
+          // will give the value of the second operand. Having the second
+          // operand set be a subset of the first, in this context, means that
+          // the two sets are compatible. This is how the compatibility check
+          // mechanism works.
+          system->addEntity(e);
+        }
+      }
+    }
+  }
+
   EntityAlreadyExistsError::EntityAlreadyExistsError(const char* what_arg)
     : std::runtime_error(what_arg) {}
 
@@ -61,5 +135,11 @@ namespace planes::engine::ecs
     : std::runtime_error(what_arg) {}
 
   UnregisteredEntityError::UnregisteredEntityError(const std::string what_arg)
+    : std::runtime_error(what_arg) {}
+
+  UnregisteredSystemError::UnregisteredSystemError(const char* what_arg)
+    : std::runtime_error(what_arg) {}
+
+  UnregisteredSystemError::UnregisteredSystemError(const std::string what_arg)
     : std::runtime_error(what_arg) {}
 }
