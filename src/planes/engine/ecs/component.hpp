@@ -101,8 +101,8 @@ namespace planes::engine::ecs {
     template <class T>
     void registerComponentType()
     {
-      // There should be an error when a component type has been registered
-      // twice.
+      // TODO: There should be an error when a component type has been
+      //       registered twice.
       const std::string typeName = typeid(T).name();
       this->typeNameToArrayMap.insert({
         typeName, std::make_unique<ComponentArray<T>>()
