@@ -52,6 +52,19 @@ TEST_CASE("System must be able to perform its tasks properly "
   entityManager.deleteEntity(deletedEntity);
   componentManager.notifyEntityDeleted(deletedEntity);
 
+  // TODO: Systems must no longer accept signature as constructor arguments.
+
+  SECTION("Registering the required component types of a system should be "
+          "done properly")
+  {
+    System system{componentManager};
+
+    // Note: registerRequiredComponentType() must have a protected access level.
+    REQUIRE_NOTHROW(system.registerRequiredComponentType<TestComponent>());
+
+    REQUIRE(system.getSignature() == Signature{1});
+  }
+
   SECTION("Adding entities to a system should be done properly")
   {
     SECTION("Adds an entity with the proper range")
