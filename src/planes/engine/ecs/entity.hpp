@@ -67,7 +67,7 @@ namespace planes::engine::ecs
       this->entitySignatures[entity].reset();
     }
 
-    Signature getSignature(Entity entity)
+    Signature getEntitySignature(const Entity entity)
     {
       if (!this->isEntityInRange(entity)) {
         throw std::out_of_range{
@@ -82,7 +82,7 @@ namespace planes::engine::ecs
       return this->entitySignatures[entity];
     }
 
-    void setSignature(Entity entity, Signature signature)
+    void setEntitySignature(const Entity entity, const Signature signature)
     {
       if (!this->isEntityInRange(entity)) {
         throw std::out_of_range(
@@ -99,12 +99,12 @@ namespace planes::engine::ecs
 
     const std::uint16_t kMaxNumEntities = maxNumEntities;
   private:
-    bool isEntityInRange(Entity entity)
+    bool isEntityInRange(const Entity entity)
     {
       return entity >= 0 && entity < this->kMaxNumEntities;
     }
 
-    bool doesEntityExist(Entity entity)
+    bool doesEntityExist(const Entity entity)
     {
       auto it = this->unusedEntities.find(entity);
       return it == this->unusedEntities.end();

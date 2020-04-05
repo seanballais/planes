@@ -203,7 +203,7 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
       REQUIRE_NOTHROW(componentManager.registerComponentType<TestComponent0>());
 
       Entity e = entities[0];
-      componentManager.addComponentType<TestComponent0>(e);
+      componentManager.addComponentTypeToEntity<TestComponent0>(e);
 
       REQUIRE(componentManager.getComponentTypeIndex<TestComponent0>() == 0);
     }
@@ -214,8 +214,8 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
       REQUIRE_NOTHROW(componentManager.registerComponentType<TestComponent1>());
       
       Entity e = entities[0];
-      componentManager.addComponentType<TestComponent0>(e);
-      componentManager.addComponentType<TestComponent1>(e);
+      componentManager.addComponentTypeToEntity<TestComponent0>(e);
+      componentManager.addComponentTypeToEntity<TestComponent1>(e);
 
       REQUIRE(componentManager.getComponentTypeIndex<TestComponent0>() == 0);
       REQUIRE(componentManager.getComponentTypeIndex<TestComponent1>() == 1);
@@ -258,19 +258,21 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
       for (int i = 0; i < numTestEntities - 2; i++) {
         // Remember that the last test entity has been deleted. So, we're not
         // going to create a component for it here.
-        componentManager.addComponentType<TestComponent0>(entities[i]);
+        componentManager.addComponentTypeToEntity<TestComponent0>(entities[i]);
       }
 
       REQUIRE_NOTHROW(([&] {
         for (int i = 0; i < numTestEntities - 2; i++) {
           TestComponent0& tc = componentManager
-                                 .getComponent<TestComponent0>(entities[i]);
+                                 .getEntityComponentType<TestComponent0>(
+                                    entities[i]);
           tc.x = i;
         }
 
         for (int i = 0; i < numTestEntities - 2; i++) {
           TestComponent0& tc = componentManager
-                                 .getComponent<TestComponent0>(entities[i]);
+                                 .getEntityComponentType<TestComponent0>(
+                                    entities[i]);
           REQUIRE(tc.x == i);
         }
       }));
@@ -280,9 +282,10 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
             "range should give us a pointer or reference to the component")
     {
       const Entity e = entities[0];
-      componentManager.addComponentType<TestComponent0>(e);
+      componentManager.addComponentTypeToEntity<TestComponent0>(e);
       REQUIRE_NOTHROW(([&] {
-        TestComponent0& tc = componentManager.getComponent<TestComponent0>(e);
+        TestComponent0& tc = componentManager
+                               .getEntityComponentType<TestComponent0>(e);
       }));
     }
 
@@ -291,13 +294,14 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
     {
       // Throwing an entity-related exception because of an invalid entity
       // must be handled by the ECS manager.
-      componentManager.addComponentType<TestComponent0>(-1);
-      componentManager.addComponentType<TestComponent0>(
+      componentManager.addComponentTypeToEntity<TestComponent0>(-1);
+      componentManager.addComponentTypeToEntity<TestComponent0>(
         entityManager.kMaxNumEntities);
       REQUIRE_NOTHROW(([&] {
-        componentManager.getComponent<TestComponent0>(-1);
+        componentManager.getEntityComponentType<TestComponent0>(-1);
         componentManager
-          .getComponent<TestComponent0>(entityManager.kMaxNumEntities);
+          .getEntityComponentType<TestComponent0>(
+             entityManager.kMaxNumEntities);
       }));
     }
 
@@ -305,9 +309,10 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
     {
       // An entity that does not exist is typically an entity that has been
       // deleted.
-      componentManager.addComponentType<TestComponent0>(deletedEntity);
+      componentManager.addComponentTypeToEntity<TestComponent0>(deletedEntity);
       REQUIRE_NOTHROW(componentManager
-                        .getComponent<TestComponent0>(deletedEntity));
+                        .getEntityComponentType<TestComponent0>(
+                           deletedEntity));
     }
 
     SECTION("Getting a component of an entity which does not have a component "
@@ -316,9 +321,10 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
       componentManager.registerComponentType<TestComponent1>();
 
       const Entity e = entities[0];
-      componentManager.addComponentType<TestComponent0>(e);
-      REQUIRE_THROWS_AS(componentManager.getComponent<TestComponent1>(e),
-                        NoComponentForEntityError);
+      componentManager.addComponentTypeToEntity<TestComponent0>(e);
+      REQUIRE_THROWS_AS(
+        componentManager.getEntityComponentType<TestComponent1>(e),
+        NoComponentForEntityError);
     }
 
     SECTION("Getting a component of an entity, whose type has not been "
@@ -334,8 +340,9 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
       ComponentManager componentManager{};
 
       const Entity e = entities[0];
-      REQUIRE_THROWS_AS(componentManager.getComponent<TestComponent0>(e),
-                        UnregisteredComponentTypeError);
+      REQUIRE_THROWS_AS(
+        componentManager.getEntityComponentType<TestComponent0>(e),
+        UnregisteredComponentTypeError);
     }
   }
 
@@ -348,8 +355,10 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
     {
       const Entity e = entities[0];
 
-      REQUIRE_NOTHROW(componentManager.addComponentType<TestComponent0>(e));
-      REQUIRE_NOTHROW(componentManager.getComponent<TestComponent0>(e));
+      REQUIRE_NOTHROW(
+        componentManager.addComponentTypeToEntity<TestComponent0>(e));
+      REQUIRE_NOTHROW(
+        componentManager.getEntityComponentType<TestComponent0>(e));
     }
 
     SECTION("Adds a component type to an entity even though it is not within "
@@ -357,21 +366,26 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
     {
       // Throwing an entity-related exception because of an invalid entity
       // must be handled by the ECS manager.
-      REQUIRE_NOTHROW(componentManager.addComponentType<TestComponent0>(-1));
-      REQUIRE_NOTHROW(componentManager.getComponent<TestComponent0>(-1));
+      REQUIRE_NOTHROW(
+        componentManager.addComponentTypeToEntity<TestComponent0>(-1));
+      REQUIRE_NOTHROW(
+        componentManager.getEntityComponentType<TestComponent0>(-1));
 
-      REQUIRE_NOTHROW(componentManager.addComponentType<TestComponent0>(
-          entityManager.kMaxNumEntities));
-      REQUIRE_NOTHROW(componentManager.getComponent<TestComponent0>(
+      REQUIRE_NOTHROW(componentManager.addComponentTypeToEntity<TestComponent0>(
+        entityManager.kMaxNumEntities));
+      REQUIRE_NOTHROW(
+        componentManager.getEntityComponentType<TestComponent0>(
           entityManager.kMaxNumEntities));
     }
 
     SECTION("Adds a component type to a non-existent entity properly")
     {
       REQUIRE_NOTHROW(
-        componentManager.addComponentType<TestComponent0>(deletedEntity));
+        componentManager.addComponentTypeToEntity<TestComponent0>(
+          deletedEntity));
       REQUIRE_NOTHROW(
-        componentManager.getComponent<TestComponent0>(deletedEntity));
+        componentManager.getEntityComponentType<TestComponent0>(
+          deletedEntity));
     }
 
     SECTION("Adding a component type to an entity without registering "
@@ -382,8 +396,9 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
       ComponentManager componentManager{};
 
       const Entity e = entities[0];
-      REQUIRE_THROWS_AS(componentManager.addComponentType<TestComponent0>(e),
-                        UnregisteredComponentTypeError);
+      REQUIRE_THROWS_AS(
+        componentManager.addComponentTypeToEntity<TestComponent0>(e),
+        UnregisteredComponentTypeError);
     }
   }
 
@@ -395,43 +410,49 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
             "range")
     {
       const Entity e = entities[0];
-      componentManager.addComponentType<TestComponent0>(e);
-      REQUIRE_NOTHROW(componentManager.deleteComponentType<TestComponent0>(e));
+      componentManager.addComponentTypeToEntity<TestComponent0>(e);
+      REQUIRE_NOTHROW(
+        componentManager.removeComponentTypeFromEntity<TestComponent0>(e));
     }
 
     SECTION("Deletes the component of an entity that is within the proper "
             "range")
     {
-      componentManager.addComponentType<TestComponent0>(-1);
-      REQUIRE_NOTHROW(componentManager.deleteComponentType<TestComponent0>(-1));
+      componentManager.addComponentTypeToEntity<TestComponent0>(-1);
+      REQUIRE_NOTHROW(
+        componentManager.removeComponentTypeFromEntity<TestComponent0>(-1));
 
-      componentManager.addComponentType<TestComponent0>(
+      componentManager.addComponentTypeToEntity<TestComponent0>(
         entityManager.kMaxNumEntities);
-      REQUIRE_NOTHROW(componentManager.deleteComponentType<TestComponent0>(
-        entityManager.kMaxNumEntities));
+      REQUIRE_NOTHROW(
+        componentManager.removeComponentTypeFromEntity<TestComponent0>(
+          entityManager.kMaxNumEntities));
     }
 
     SECTION("Deletes the component of a non-existent entity")
     {
-      componentManager.addComponentType<TestComponent0>(deletedEntity);
+      componentManager.addComponentTypeToEntity<TestComponent0>(deletedEntity);
       REQUIRE_NOTHROW(
-        componentManager.deleteComponentType<TestComponent0>(deletedEntity));
+        componentManager.removeComponentTypeFromEntity<TestComponent0>(
+          deletedEntity));
     }
 
     SECTION("Deleting a component of an entity that the entity does not have "
             "should cause an exception")
     {
       const Entity e = entities[0];
-      REQUIRE_THROWS_AS(componentManager.deleteComponentType<TestComponent0>(e),
-                        NoComponentForEntityError);
+      REQUIRE_THROWS_AS(
+        componentManager.removeComponentTypeFromEntity<TestComponent0>(e),
+        NoComponentForEntityError);
     }
 
     SECTION("Deleting a component type to an entity without registering "
             "the component type first should cause an exception")
     {
       const Entity e = entities[0];
-      REQUIRE_THROWS_AS(componentManager.deleteComponentType<TestComponent1>(e),
-                        UnregisteredComponentTypeError);
+      REQUIRE_THROWS_AS(
+        componentManager.removeComponentTypeFromEntity<TestComponent1>(e),
+        UnregisteredComponentTypeError);
     }
   }
 
@@ -443,13 +464,14 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
             "components of the deleted entity")
     {
       const Entity deletedEntity = entities[0];
-      componentManager.addComponentType<TestComponent0>(deletedEntity);
+      componentManager.addComponentTypeToEntity<TestComponent0>(deletedEntity);
       entityManager.deleteEntity(deletedEntity);
 
       componentManager.notifyEntityDeleted(deletedEntity);
-      REQUIRE_THROWS_AS(componentManager
-                          .getComponent<TestComponent0>(deletedEntity),
-                        NoComponentForEntityError);
+      REQUIRE_THROWS_AS(
+        componentManager.getEntityComponentType<TestComponent0>(
+          deletedEntity),
+        NoComponentForEntityError);
     }
 
     SECTION("Receiving a notification for an entity does not affect the "
@@ -459,14 +481,15 @@ TEST_CASE("ComponentManager must be able to manage components properly ",
         // Remember that the last test entity has been deleted. So, we're not
         // going to create a component for it here.
         const Entity e = entities[i];
-        componentManager.addComponentType<TestComponent0>(e);
+        componentManager.addComponentTypeToEntity<TestComponent0>(e);
       }
 
       componentManager.notifyEntityDeleted(deletedEntity);
 
       for (int i = 0; i < numTestEntities - 1; i++) {
         const Entity e = entities[i];
-        REQUIRE_NOTHROW(componentManager.getComponent<TestComponent0>(e));
+        REQUIRE_NOTHROW(
+          componentManager.getEntityComponentType<TestComponent0>(e));
       }
     }
   }

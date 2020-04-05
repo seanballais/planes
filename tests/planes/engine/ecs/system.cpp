@@ -23,13 +23,16 @@ TEST_CASE("System must be able to perform its tasks properly "
   {
   public:
     TestSystem(ComponentManager& componentManager)
-      : System(Signature{1}, componentManager) {}
+        : System(componentManager)
+    {
+      this->registerRequiredComponentType<TestComponent>();
+    }
 
     void update() override
     {
       for (const Entity e : this->entities) {
         TestComponent& c = this->componentManager
-                                .getComponent<TestComponent>(e);
+                                .getEntityComponentType<TestComponent>(e);
         if (c.x == 1) {
           c.x = 0;
         }
@@ -45,7 +48,7 @@ TEST_CASE("System must be able to perform its tasks properly "
   Entity entities[numTestEntities];
   for (int i = 0; i < numTestEntities; i++) {
     entities[i] = entityManager.createEntity();
-    componentManager.addComponentType<TestComponent>(entities[i]);
+    componentManager.addComponentTypeToEntity<TestComponent>(entities[i]);
   }
 
   Entity deletedEntity = entities[numTestEntities - 1];
@@ -57,12 +60,43 @@ TEST_CASE("System must be able to perform its tasks properly "
   SECTION("Registering the required component types of a system should be "
           "done properly")
   {
-    System system{componentManager};
+    SECTION("Registers a required component type to a system")
+    {
+      class SomeTestSystem : public System
+      {
+      public:
+        SomeTestSystem(ComponentManager& componentManager)
+            : System(componentManager)
+        {
+          REQUIRE_NOTHROW(this->registerRequiredComponentType<TestComponent>());
+        }
 
-    // Note: registerRequiredComponentType() must have a protected access level.
-    REQUIRE_NOTHROW(system.registerRequiredComponentType<TestComponent>());
+        void update() override {}
+      };
+      SomeTestSystem system{componentManager};
 
-    REQUIRE(system.getSignature() == Signature{1});
+      REQUIRE(system.getSignature() == Signature{1});
+    }
+
+    SECTION("Registering a required component type twice should cause an "
+            "exception")
+    {
+      class SomeTestSystem : public System
+      {
+      public:
+        SomeTestSystem(ComponentManager& componentManager)
+            : System(componentManager)
+        {
+          REQUIRE_NOTHROW(this->registerRequiredComponentType<TestComponent>());
+          REQUIRE_THROWS_AS(
+            this->registerRequiredComponentType<TestComponent>(),
+            SystemAlreadyRegisteredComponentType);
+        }
+
+        void update() override {}
+      };
+      SomeTestSystem system{componentManager};
+    }
   }
 
   SECTION("Adding entities to a system should be done properly")
@@ -70,14 +104,15 @@ TEST_CASE("System must be able to perform its tasks properly "
     SECTION("Adds an entity with the proper range")
     {
       const Entity e = entities[0];
-      TestComponent& c = componentManager.getComponent<TestComponent>(e);
-      c.x = 1;
+      TestComponent* c;
+      c = &(componentManager.getEntityComponentType<TestComponent>(e));
+      c->x = 1;
 
       REQUIRE_NOTHROW(system.addEntity(e));
 
       system.update();
 
-      REQUIRE(c.x == 0);
+      REQUIRE(c->x == 0);
     }
 
     SECTION("Adds an entity that is not within the proper range")
@@ -101,8 +136,9 @@ TEST_CASE("System must be able to perform its tasks properly "
       for (int i = 0; i < numTestEntities; i++) {
         const Entity e = entities[i];
 
-        TestComponent& c = componentManager.getComponent<TestComponent>(e);
-        c.x = 1;
+        TestComponent* c;
+        c = &(componentManager.getEntityComponentType<TestComponent>(e));
+        c->x = 1;
 
         system.addEntity(e);
       }
@@ -111,8 +147,9 @@ TEST_CASE("System must be able to perform its tasks properly "
 
       for (int i = 0; i < numTestEntities; i++) {
         const Entity e = entities[i];
-        TestComponent& c = componentManager.getComponent<TestComponent>(e);
-        REQUIRE(c.x == 0);
+        TestComponent* c;
+        c = &(componentManager.getEntityComponentType<TestComponent>(e));
+        REQUIRE(c->x == 0);
       }
     }
 
@@ -120,7 +157,7 @@ TEST_CASE("System must be able to perform its tasks properly "
     {
       const Entity e = entities[0];
       system.addEntity(e);
-      REQUIRE_THROWS_AS(system.addEntity(e), EntityAlreadyExistsError);
+      REQUIRE_THROWS_AS(system.addEntity(e), EntityAlreadyAddedToSystemError);
     }
   }
 
@@ -134,8 +171,9 @@ TEST_CASE("System must be able to perform its tasks properly "
     SECTION("Removes an entity that has been added")
     {
       const Entity e = entities[0];
-      TestComponent& c = componentManager.getComponent<TestComponent>(e);
-      c.x = 1;
+      TestComponent* c;
+      c = &(componentManager.getEntityComponentType<TestComponent>(e));
+      c->x = 1;
 
       system.addEntity(e);
 
@@ -143,7 +181,7 @@ TEST_CASE("System must be able to perform its tasks properly "
 
       system.update();
 
-      REQUIRE(c.x != 0);
+      REQUIRE(c->x != 0);
     }
 
     SECTION("Removing an entity that has not been added should cause an "
@@ -189,8 +227,9 @@ TEST_CASE("System must be able to perform its tasks properly "
       for (int i = 0; i < numTestEntities; i++) {
         const Entity e = entities[i];
   
-        TestComponent& c = componentManager.getComponent<TestComponent>(e);
-        c.x = 1;
+        TestComponent* c;
+        c = &(componentManager.getEntityComponentType<TestComponent>(e));
+        c->x = 1;
 
         system.addEntity(e);
       }
@@ -199,8 +238,9 @@ TEST_CASE("System must be able to perform its tasks properly "
 
       for (int i = 0; i < numTestEntities; i++) {
         const Entity e = entities[i];
-        TestComponent& c = componentManager.getComponent<TestComponent>(e);
-        REQUIRE(c.x == 0);
+        TestComponent* c;
+        c = &(componentManager.getEntityComponentType<TestComponent>(e));
+        REQUIRE(c->x == 0);
       }
     }
 
@@ -244,13 +284,16 @@ TEST_CASE("SystemManager must be able to manage systems properly "
   {
   public:
     TestSystem0(ComponentManager& componentManager)
-      : System(Signature{1}, componentManager) {}
+        : System(componentManager)
+    {
+      this->registerRequiredComponentType<TestComponent0>();
+    }
 
     void update() override
     {
       for (const Entity e : this->entities) {
         TestComponent0& c = this->componentManager
-                                 .getComponent<TestComponent0>(e);
+                                 .getEntityComponentType<TestComponent0>(e);
         if (c.x == 1) {
           c.x = 0;
         }
@@ -262,13 +305,16 @@ TEST_CASE("SystemManager must be able to manage systems properly "
   {
   public:
     TestSystem1(ComponentManager& componentManager)
-      : System(Signature{2}, componentManager) {}
+        : System(componentManager)
+    {
+      this->registerRequiredComponentType<TestComponent1>();
+    }
 
     void update() override
     {
       for (const Entity e : this->entities) {
         TestComponent1& c = this->componentManager
-                                 .getComponent<TestComponent1>(e);
+                                 .getEntityComponentType<TestComponent1>(e);
         if (c.y == 1) {
           c.y = 2;
         }
@@ -280,13 +326,16 @@ TEST_CASE("SystemManager must be able to manage systems properly "
   {
   public:
     TestSystem2(ComponentManager& componentManager)
-      : System(Signature{4}, componentManager) {}
+        : System(componentManager)
+    {
+      this->registerRequiredComponentType<TestComponent2>();
+    }
 
     void update() override
     {
       for (const Entity e : this->entities) {
         TestComponent2& c = this->componentManager
-                                 .getComponent<TestComponent2>(e);
+                                 .getEntityComponentType<TestComponent2>(e);
         if (c.z == 1) {
           c.z = 2;
         }
@@ -298,7 +347,7 @@ TEST_CASE("SystemManager must be able to manage systems properly "
   {
   public:
     UnregisteredSystem(ComponentManager& componentManager)
-      : System(Signature{0}, componentManager) {}
+      : System(componentManager) {}
 
     void update() override {}
   };
@@ -309,13 +358,13 @@ TEST_CASE("SystemManager must be able to manage systems properly "
   Entity entities0[numTestEntities / 2];
   for (int i = 0; i < (numTestEntities / 2); i++) {
     entities0[i] = entityManager.createEntity();
-    componentManager.addComponentType<TestComponent0>(entities0[i]);
+    componentManager.addComponentTypeToEntity<TestComponent0>(entities0[i]);
   }
 
   Entity entities1[numTestEntities / 2];
   for (int i = 0; i < (numTestEntities / 2); i++) {
     entities1[i] = entityManager.createEntity();
-    componentManager.addComponentType<TestComponent1>(entities1[i]);
+    componentManager.addComponentTypeToEntity<TestComponent1>(entities1[i]);
   }
 
   SECTION("Registering a system must be done properly")
@@ -327,14 +376,15 @@ TEST_CASE("SystemManager must be able to manage systems properly "
       REQUIRE_NOTHROW(systemManager.registerSystem<TestSystem0>());
 
       const Entity e = entities0[0];
-      systemManager.addEntity<TestSystem0>(e);
+      systemManager.addEntityToSystem<TestSystem0>(e);
 
-      TestComponent0& tc = componentManager.getComponent<TestComponent0>(e);
-      tc.x = 1;
+      TestComponent0* tc;
+      tc = &(componentManager.getEntityComponentType<TestComponent0>(e));
+      tc->x = 1;
 
       systemManager.getSystem<TestSystem0>().update();
 
-      REQUIRE(tc.x == 0);
+      REQUIRE(tc->x == 0);
     }
 
     SECTION("Registers two systems properly")
@@ -345,20 +395,22 @@ TEST_CASE("SystemManager must be able to manage systems properly "
       const Entity e0 = entities0[0];
       const Entity e1 = entities1[0];
 
-      systemManager.addEntity<TestSystem0>(e0);
-      systemManager.addEntity<TestSystem1>(e1);
+      systemManager.addEntityToSystem<TestSystem0>(e0);
+      systemManager.addEntityToSystem<TestSystem1>(e1);
 
-      TestComponent0& tc0 = componentManager.getComponent<TestComponent0>(e0);
-      TestComponent1& tc1 = componentManager.getComponent<TestComponent1>(e1);
+      TestComponent0* tc0;
+      TestComponent1* tc1;
+      tc0 = &(componentManager.getEntityComponentType<TestComponent0>(e0));
+      tc1 = &(componentManager.getEntityComponentType<TestComponent1>(e1));
 
-      tc0.x = 1;
-      tc1.y = 1;
+      tc0->x = 1;
+      tc1->y = 1;
 
       systemManager.getSystem<TestSystem0>().update();
       systemManager.getSystem<TestSystem1>().update();
 
-      REQUIRE(tc0.x == 0);
-      REQUIRE(tc1.y == 2);
+      REQUIRE(tc0->x == 0);
+      REQUIRE(tc1->y == 2);
     }
   }
 
@@ -370,17 +422,19 @@ TEST_CASE("SystemManager must be able to manage systems properly "
     SECTION("Gets the correct system")
     {
       for (const Entity e : entities0) {
-        TestComponent0& tc = componentManager.getComponent<TestComponent0>(e);
-        systemManager.addEntity<TestSystem0>(e);
-        tc.x = 1;
+        TestComponent0* tc;
+        tc = &(componentManager.getEntityComponentType<TestComponent0>(e));
+        systemManager.addEntityToSystem<TestSystem0>(e);
+        tc->x = 1;
       }
 
       TestSystem0& system = systemManager.getSystem<TestSystem0>();
       system.update();
 
       for (const Entity e : entities0) {
-        TestComponent0& tc = componentManager.getComponent<TestComponent0>(e);
-        REQUIRE(tc.x == 0);
+        TestComponent0* tc;
+        tc = &(componentManager.getEntityComponentType<TestComponent0>(e));
+        REQUIRE(tc->x == 0);
       }
     }
 
@@ -406,13 +460,13 @@ TEST_CASE("SystemManager must be able to manage systems properly "
 
     SECTION("Gets the system signature properly")
     {
-      REQUIRE(systemManager.getSignature<TestSystem0>() == Signature{1});
+      REQUIRE(systemManager.getSystemSignature<TestSystem0>() == Signature{1});
     }
 
     SECTION("Getting the signature of an unregistered system should cause an "
             "exception")
     {
-      REQUIRE_THROWS_AS(systemManager.getSignature<UnregisteredSystem>()
+      REQUIRE_THROWS_AS(systemManager.getSystemSignature<UnregisteredSystem>()
                           == Signature{4},
                         UnregisteredSystemError);
     }
@@ -428,15 +482,16 @@ TEST_CASE("SystemManager must be able to manage systems properly "
     SECTION("Adds an entity")
     {
       const Entity e = entities0[0];
-      TestComponent0& c = componentManager.getComponent<TestComponent0>(e);
-      c.x = 1;
+      TestComponent0* c;
+      c = &(componentManager.getEntityComponentType<TestComponent0>(e));
+      c->x = 1;
 
-      REQUIRE_NOTHROW(systemManager.addEntity<TestSystem0>(e));
+      REQUIRE_NOTHROW(systemManager.addEntityToSystem<TestSystem0>(e));
 
       TestSystem0& system = systemManager.getSystem<TestSystem0>();
       system.update();
 
-      REQUIRE(c.x == 0);
+      REQUIRE(c->x == 0);
     }
 
     SECTION("Adds two entities")
@@ -444,14 +499,16 @@ TEST_CASE("SystemManager must be able to manage systems properly "
       const Entity e0 = entities0[0];
       const Entity e1 = entities1[0];
 
-      TestComponent0& c0 = componentManager.getComponent<TestComponent0>(e0);
-      TestComponent1& c1 = componentManager.getComponent<TestComponent1>(e1);
+      TestComponent0* c0;
+      TestComponent1* c1;
+      c0 = &(componentManager.getEntityComponentType<TestComponent0>(e0));
+      c1 = &(componentManager.getEntityComponentType<TestComponent1>(e1));
 
-      c0.x = 1;
-      c1.y = 1;
+      c0->x = 1;
+      c1->y = 1;
 
-      REQUIRE_NOTHROW(systemManager.addEntity<TestSystem0>(e0));
-      REQUIRE_NOTHROW(systemManager.addEntity<TestSystem1>(e1));
+      REQUIRE_NOTHROW(systemManager.addEntityToSystem<TestSystem0>(e0));
+      REQUIRE_NOTHROW(systemManager.addEntityToSystem<TestSystem1>(e1));
 
       TestSystem0& system0 = systemManager.getSystem<TestSystem0>();
       TestSystem1& system1 = systemManager.getSystem<TestSystem1>();
@@ -459,23 +516,23 @@ TEST_CASE("SystemManager must be able to manage systems properly "
       system0.update();
       system1.update();
 
-      REQUIRE(c0.x == 0);
-      REQUIRE(c1.y == 2);
+      REQUIRE(c0->x == 0);
+      REQUIRE(c1->y == 2);
     }
 
     SECTION("Adding the same entity twice should cause an exception")
     {
       const Entity e = entities0[0];
-      systemManager.addEntity<TestSystem0>(e);
-      REQUIRE_THROWS_AS(systemManager.addEntity<TestSystem0>(e),
-                        EntityAlreadyExistsError);
+      systemManager.addEntityToSystem<TestSystem0>(e);
+      REQUIRE_THROWS_AS(systemManager.addEntityToSystem<TestSystem0>(e),
+                        EntityAlreadyAddedToSystemError);
     }
 
     SECTION("Adding an entity to an unregistered system should cause an "
             "exception")
     {
       const Entity e = entities0[0];
-      REQUIRE_THROWS_AS(systemManager.addEntity<UnregisteredSystem>(e),
+      REQUIRE_THROWS_AS(systemManager.addEntityToSystem<UnregisteredSystem>(e),
                         UnregisteredSystemError);
     }
 
@@ -484,16 +541,18 @@ TEST_CASE("SystemManager must be able to manage systems properly "
     {
       const Entity e = entityManager.createEntity();
       const Signature signature{3};
-      componentManager.addComponentType<TestComponent0>(e);
-      componentManager.addComponentType<TestComponent1>(e);
+      componentManager.addComponentTypeToEntity<TestComponent0>(e);
+      componentManager.addComponentTypeToEntity<TestComponent1>(e);
 
-      TestComponent0& tc0 = componentManager.getComponent<TestComponent0>(e);
-      TestComponent1& tc1 = componentManager.getComponent<TestComponent1>(e);
+      TestComponent0* tc0;
+      TestComponent1* tc1;
+      tc0 = &(componentManager.getEntityComponentType<TestComponent0>(e));
+      tc1 = &(componentManager.getEntityComponentType<TestComponent1>(e));
 
-      tc0.x = 1;
-      tc1.y = 1;
+      tc0->x = 1;
+      tc1->y = 1;
 
-      REQUIRE_NOTHROW(systemManager.addEntity(e, signature));
+      REQUIRE_NOTHROW(systemManager.addEntityToSystems(e, signature));
 
       TestSystem0& system0 = systemManager.getSystem<TestSystem0>();
       TestSystem1& system1 = systemManager.getSystem<TestSystem1>();
@@ -501,8 +560,8 @@ TEST_CASE("SystemManager must be able to manage systems properly "
       system0.update();
       system1.update();
 
-      REQUIRE(tc0.x == 0);
-      REQUIRE(tc1.y == 2);
+      REQUIRE(tc0->x == 0);
+      REQUIRE(tc1->y == 2);
 
       TestSystem2& system2 = systemManager.getSystem<TestSystem2>();
 
@@ -523,17 +582,18 @@ TEST_CASE("SystemManager must be able to manage systems properly "
     SECTION("Removes an entity that has been added")
     {
       const Entity e = entities0[0];
-      TestComponent0& c = componentManager.getComponent<TestComponent0>(e);
-      c.x = 1;
+      TestComponent0* c;
+      c = &(componentManager.getEntityComponentType<TestComponent0>(e));
+      c->x = 1;
 
-      systemManager.addEntity<TestSystem0>(e);
+      systemManager.addEntityToSystem<TestSystem0>(e);
 
-      REQUIRE_NOTHROW(systemManager.removeEntity<TestSystem0>(e));
+      REQUIRE_NOTHROW(systemManager.removeEntityFromSystem<TestSystem0>(e));
 
       TestSystem0& system = systemManager.getSystem<TestSystem0>();
       system.update();
 
-      REQUIRE(c.x != 0);
+      REQUIRE(c->x != 0);
     }
 
     SECTION("Removes two entities that have been added")
@@ -541,17 +601,19 @@ TEST_CASE("SystemManager must be able to manage systems properly "
       const Entity e0 = entities0[0];
       const Entity e1 = entities1[0];
 
-      TestComponent0& c0 = componentManager.getComponent<TestComponent0>(e0);
-      TestComponent1& c1 = componentManager.getComponent<TestComponent1>(e1);
+      TestComponent0* c0;
+      TestComponent1* c1;
+      c0 = &(componentManager.getEntityComponentType<TestComponent0>(e0));
+      c1 = &(componentManager.getEntityComponentType<TestComponent1>(e1));
 
-      c0.x = 1;
-      c1.y = 1;
+      c0->x = 1;
+      c1->y = 1;
 
-      systemManager.addEntity<TestSystem0>(e0);
-      systemManager.addEntity<TestSystem1>(e1);
+      systemManager.addEntityToSystem<TestSystem0>(e0);
+      systemManager.addEntityToSystem<TestSystem1>(e1);
 
-      REQUIRE_NOTHROW(systemManager.removeEntity<TestSystem0>(e0));
-      REQUIRE_NOTHROW(systemManager.removeEntity<TestSystem1>(e1));
+      REQUIRE_NOTHROW(systemManager.removeEntityFromSystem<TestSystem0>(e0));
+      REQUIRE_NOTHROW(systemManager.removeEntityFromSystem<TestSystem1>(e1));
 
       TestSystem0& system0 = systemManager.getSystem<TestSystem0>();
       TestSystem1& system1 = systemManager.getSystem<TestSystem1>();
@@ -559,15 +621,15 @@ TEST_CASE("SystemManager must be able to manage systems properly "
       system0.update();
       system1.update();
 
-      REQUIRE(c0.x != 0);
-      REQUIRE(c1.y != 2);
+      REQUIRE(c0->x != 0);
+      REQUIRE(c1->y != 2);
     }
 
     SECTION("Removing an entity that has not been added should cause an "
             "exception")
     {
       const Entity e = entities0[0];
-      REQUIRE_THROWS_AS(systemManager.removeEntity<TestSystem0>(e),
+      REQUIRE_THROWS_AS(systemManager.removeEntityFromSystem<TestSystem0>(e),
                         UnregisteredEntityError);
     }
 
@@ -575,10 +637,10 @@ TEST_CASE("SystemManager must be able to manage systems properly "
             "exception")
     {
       const Entity e = entities0[0];
-      systemManager.addEntity<TestSystem0>(e);
-      systemManager.removeEntity<TestSystem0>(e);
+      systemManager.addEntityToSystem<TestSystem0>(e);
+      systemManager.removeEntityFromSystem<TestSystem0>(e);
 
-      REQUIRE_THROWS_AS(systemManager.removeEntity<TestSystem0>(e),
+      REQUIRE_THROWS_AS(systemManager.removeEntityFromSystem<TestSystem0>(e),
                         UnregisteredEntityError);
     }
 
@@ -586,8 +648,9 @@ TEST_CASE("SystemManager must be able to manage systems properly "
             "exception")
     {
       const Entity e = entities0[0];
-      REQUIRE_THROWS_AS(systemManager.removeEntity<UnregisteredSystem>(e),
-                        UnregisteredSystemError);
+      REQUIRE_THROWS_AS(
+        systemManager.removeEntityFromSystem<UnregisteredSystem>(e),
+        UnregisteredSystemError);
     }
 
     SECTION("Removing an entity without specifying a system should remove it to "
@@ -596,17 +659,19 @@ TEST_CASE("SystemManager must be able to manage systems properly "
       const Entity e = entityManager.createEntity();
       const Signature signature{3};
 
-      componentManager.addComponentType<TestComponent0>(e);
-      componentManager.addComponentType<TestComponent1>(e);
+      componentManager.addComponentTypeToEntity<TestComponent0>(e);
+      componentManager.addComponentTypeToEntity<TestComponent1>(e);
 
-      TestComponent0& tc0 = componentManager.getComponent<TestComponent0>(e);
-      TestComponent1& tc1 = componentManager.getComponent<TestComponent1>(e);
+      TestComponent0* tc0;
+      TestComponent1* tc1;
+      tc0 = &(componentManager.getEntityComponentType<TestComponent0>(e));
+      tc1 = &(componentManager.getEntityComponentType<TestComponent1>(e));
 
-      tc0.x = 1;
-      tc1.y = 1;
+      tc0->x = 1;
+      tc1->y = 1;
 
-      systemManager.addEntity(e, signature);
-      REQUIRE_NOTHROW(systemManager.removeEntity(e));
+      systemManager.addEntityToSystems(e, signature);
+      REQUIRE_NOTHROW(systemManager.removeEntityFromSystems(e));
 
       TestSystem0& system0 = systemManager.getSystem<TestSystem0>();
       TestSystem1& system1 = systemManager.getSystem<TestSystem1>();
@@ -614,8 +679,8 @@ TEST_CASE("SystemManager must be able to manage systems properly "
       system0.update();
       system1.update();
 
-      REQUIRE(tc0.x != 0);
-      REQUIRE(tc1.y != 2);
+      REQUIRE(tc0->x != 0);
+      REQUIRE(tc1->y != 2);
 
       // No need to check if the entity has been added to TestSystem2 since that
       // check is handled by another test. We are assuming that systemManager's
@@ -644,11 +709,11 @@ TEST_CASE("SystemManager must be able to manage systems properly "
       const Signature newSignature0{2};
       const Signature newSignature1{1};
 
-      systemManager.addEntity<TestSystem0>(e0);
-      systemManager.addEntity<TestSystem1>(e1);
+      systemManager.addEntityToSystem<TestSystem0>(e0);
+      systemManager.addEntityToSystem<TestSystem1>(e1);
 
-      componentManager.addComponentType<TestComponent0>(e0);
-      componentManager.addComponentType<TestComponent1>(e1);
+      componentManager.addComponentTypeToEntity<TestComponent0>(e0);
+      componentManager.addComponentTypeToEntity<TestComponent1>(e1);
 
       // Essentially swap the components of the two entities.
       systemManager.notifyEntitySignatureChanged(e0, newSignature0);
@@ -673,9 +738,9 @@ TEST_CASE("SystemManager must be able to manage systems properly "
 
       // Assume e0 is originally handled by TestSystem1. The change in
       // signature will cause e0 to now be handled by TestSystem0.
-      systemManager.addEntity<TestSystem1>(e0);
-      systemManager.addEntity<TestSystem0>(e1);
-      systemManager.addEntity<TestSystem1>(e2);
+      systemManager.addEntityToSystem<TestSystem1>(e0);
+      systemManager.addEntityToSystem<TestSystem0>(e1);
+      systemManager.addEntityToSystem<TestSystem1>(e2);
 
       systemManager.notifyEntitySignatureChanged(e0, newSignature);
 

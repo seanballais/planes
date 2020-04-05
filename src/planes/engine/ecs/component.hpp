@@ -95,8 +95,7 @@ namespace planes::engine::ecs {
   class ComponentManager
   {
   public:
-    ComponentManager()
-      : nextComponentTypeIndex(0) {}
+    ComponentManager();
 
     template <class T>
     void registerComponentType()
@@ -123,7 +122,7 @@ namespace planes::engine::ecs {
     }
 
     template <class T>
-    T& getComponent(const Entity e)
+    T& getEntityComponentType(const Entity e)
     {
       // This should really only be done in debug mode.
       this->checkComponentTypeRegistration<T>();
@@ -133,7 +132,7 @@ namespace planes::engine::ecs {
     }
 
     template <class T>
-    void addComponentType(const Entity e)
+    void addComponentTypeToEntity(const Entity e)
     {
       // This should really only be done in debug mode.
       this->checkComponentTypeRegistration<T>();
@@ -143,7 +142,7 @@ namespace planes::engine::ecs {
     }
 
     template <class T>
-    void deleteComponentType(const Entity e)
+    void removeComponentTypeFromEntity(const Entity e)
     {
       // This should really only be done in debug mode.
       this->checkComponentTypeRegistration<T>();

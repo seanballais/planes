@@ -9,10 +9,46 @@
 
 namespace planes::engine::ecs
 {
-  System::System(const Signature signature, ComponentManager& componentManager)
-    : signature(signature)
-    , componentManager(componentManager)
+  SystemAlreadyRegisteredComponentType::SystemAlreadyRegisteredComponentType(
+      const char* what_arg)
+    : std::runtime_error(what_arg) {}
+
+  SystemAlreadyRegisteredComponentType::SystemAlreadyRegisteredComponentType(
+      const std::string what_arg)
+    : std::runtime_error(what_arg) {}
+
+  EntityAlreadyAddedToSystemError::EntityAlreadyAddedToSystemError(
+      const char* what_arg)
+    : std::runtime_error(what_arg) {}
+
+  EntityAlreadyAddedToSystemError::EntityAlreadyAddedToSystemError(
+      const std::string what_arg)
+    : std::runtime_error(what_arg) {}
+
+  IncompatibleEntitySignatureError::IncompatibleEntitySignatureError(
+      const char* what_arg)
+    : std::runtime_error(what_arg) {}
+  
+  IncompatibleEntitySignatureError::IncompatibleEntitySignatureError(
+      const std::string what_arg)
+    : std::runtime_error(what_arg) {}
+
+  UnregisteredEntityError::UnregisteredEntityError(const char* what_arg)
+    : std::runtime_error(what_arg) {}
+
+  UnregisteredEntityError::UnregisteredEntityError(const std::string what_arg)
+    : std::runtime_error(what_arg) {}
+
+  UnregisteredSystemError::UnregisteredSystemError(const char* what_arg)
+    : std::runtime_error(what_arg) {}
+
+  UnregisteredSystemError::UnregisteredSystemError(const std::string what_arg)
+    : std::runtime_error(what_arg) {}
+
+  System::System(ComponentManager& componentManager)
+    : componentManager(componentManager)
     , entityToIndexMap({})
+    , registeredComponentTypes({})
     , numEntities(0) {}
 
   void System::addEntity(const Entity e)
@@ -29,7 +65,7 @@ namespace planes::engine::ecs
                      << e << ".";
       std::string errorMsg = errorMsgStream.str();
 
-      throw EntityAlreadyExistsError(errorMsg);
+      throw EntityAlreadyAddedToSystemError{errorMsg};
     }
   }
 
@@ -66,7 +102,8 @@ namespace planes::engine::ecs
   SystemManager::SystemManager(ComponentManager& componentManager)
     : componentManager(componentManager) {}
 
-  void SystemManager::addEntity(const Entity e, const Signature signature)
+  void SystemManager::addEntityToSystems(const Entity e,
+                                         const Signature signature)
   {
     for (const auto& item : this->nameToSystem) {
       System* system = item.second.get();
@@ -87,7 +124,7 @@ namespace planes::engine::ecs
     }
   }
 
-  void SystemManager::removeEntity(const Entity e)
+  void SystemManager::removeEntityFromSystems(const Entity e)
   {
     for (const auto& item : this->nameToSystem) {
       System* system = item.second.get();
@@ -97,7 +134,7 @@ namespace planes::engine::ecs
     }
   }
 
-  void SystemManager::notifyEntitySignatureChanged(Entity e,
+  void SystemManager::notifyEntitySignatureChanged(const Entity e,
                                                    const Signature signature)
   {
     for (const auto& item : this->nameToSystem) {
@@ -124,22 +161,4 @@ namespace planes::engine::ecs
       }
     }
   }
-
-  EntityAlreadyExistsError::EntityAlreadyExistsError(const char* what_arg)
-    : std::runtime_error(what_arg) {}
-
-  EntityAlreadyExistsError::EntityAlreadyExistsError(const std::string what_arg)
-    : std::runtime_error(what_arg) {}
-
-  UnregisteredEntityError::UnregisteredEntityError(const char* what_arg)
-    : std::runtime_error(what_arg) {}
-
-  UnregisteredEntityError::UnregisteredEntityError(const std::string what_arg)
-    : std::runtime_error(what_arg) {}
-
-  UnregisteredSystemError::UnregisteredSystemError(const char* what_arg)
-    : std::runtime_error(what_arg) {}
-
-  UnregisteredSystemError::UnregisteredSystemError(const std::string what_arg)
-    : std::runtime_error(what_arg) {}
 }

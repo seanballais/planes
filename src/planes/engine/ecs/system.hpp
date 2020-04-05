@@ -14,11 +14,25 @@
 
 namespace planes::engine::ecs
 {
-  class EntityAlreadyExistsError : public std::runtime_error
+  class SystemAlreadyRegisteredComponentType : public std::runtime_error
   {
   public:
-    EntityAlreadyExistsError(const char* what_arg);
-    EntityAlreadyExistsError(const std::string what_arg);
+    SystemAlreadyRegisteredComponentType(const char* what_arg);
+    SystemAlreadyRegisteredComponentType(const std::string what_arg);
+  };
+
+  class EntityAlreadyAddedToSystemError : public std::runtime_error
+  {
+  public:
+    EntityAlreadyAddedToSystemError(const char* what_arg);
+    EntityAlreadyAddedToSystemError(const std::string what_arg);
+  };
+
+  class IncompatibleEntitySignatureError : public std::runtime_error
+  {
+  public:
+    IncompatibleEntitySignatureError(const char* what_arg);
+    IncompatibleEntitySignatureError(const std::string what_arg);
   };
 
   class UnregisteredEntityError : public std::runtime_error
@@ -38,7 +52,7 @@ namespace planes::engine::ecs
   class System
   {
   public:
-    System(const Signature signature, ComponentManager& componentManager);
+    System(ComponentManager& componentManager);
     void addEntity(const Entity e);
     void removeEntity(const Entity e);
     bool hasEntity(const Entity e) const;
@@ -47,7 +61,27 @@ namespace planes::engine::ecs
     virtual void update() = 0;
 
   protected:
-    const Signature signature;
+    template <class T>
+    void registerRequiredComponentType()
+    {
+      const std::string typeName = typeid(T).name();
+      const auto& item = this->registeredComponentTypes.find(typeName);
+      if (item == this->registeredComponentTypes.end()) {
+        const unsigned int typeIndex = this->componentManager
+                                            .getComponentTypeIndex<T>();
+        this->signature.set(static_cast<size_t>(typeIndex), true);
+
+        this->registeredComponentTypes.insert(typeName);
+      } else {
+        std::stringstream errorMsgStream;
+        errorMsgStream << "Component type, " << typeName << ", is already "
+                       << "registered.";
+        std::string errorMsg = errorMsgStream.str();
+        throw SystemAlreadyRegisteredComponentType{errorMsg};
+      }
+    }
+
+    Signature signature;
     ComponentManager& componentManager;
 
     // We're using a vector here for cache locality during system updates.
@@ -58,6 +92,8 @@ namespace planes::engine::ecs
     // for a fast checking if an entity is registered in the system or not.
     std::unordered_map<Entity, size_t> entityToIndexMap;
 
+    std::unordered_set<std::string> registeredComponentTypes;
+
     size_t numEntities;
   };
 
@@ -65,9 +101,10 @@ namespace planes::engine::ecs
   {
   public:
     SystemManager(ComponentManager& componentManager);
-    void addEntity(const Entity e, const Signature signature);
-    void removeEntity(const Entity e);
-    void notifyEntitySignatureChanged(Entity e, const Signature signature);
+    void addEntityToSystems(const Entity e, const Signature signature);
+    void removeEntityFromSystems(const Entity e);
+    void notifyEntitySignatureChanged(const Entity e,
+                                      const Signature signature);
 
     template <class T>
     void registerSystem()
@@ -79,7 +116,7 @@ namespace planes::engine::ecs
     }
 
     template <class T>
-    void addEntity(const Entity e)
+    void addEntityToSystem(const Entity e)
     {
       // Maybe add a signature check between the entity and the system?
       this->checkSystemRegistration<T>();
@@ -89,7 +126,7 @@ namespace planes::engine::ecs
     }
 
     template <class T>
-    void removeEntity(const Entity e)
+    void removeEntityFromSystem(const Entity e)
     {
       this->checkSystemRegistration<T>();
 
@@ -108,7 +145,7 @@ namespace planes::engine::ecs
     }
 
     template <class T>
-    Signature getSignature() const
+    Signature getSystemSignature() const
     {
       this->checkSystemRegistration<T>();
 

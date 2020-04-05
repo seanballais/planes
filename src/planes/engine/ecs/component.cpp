@@ -11,6 +11,9 @@ namespace planes::engine::ecs
       const char* what_arg)
     : std::runtime_error(what_arg) {}
 
+  ComponentManager::ComponentManager()
+    : nextComponentTypeIndex(0) {}
+
   void ComponentManager::notifyEntityDeleted(const Entity e)
   {
     for (const auto& item : this->typeNameToArrayMap) {

@@ -35,7 +35,7 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
     {
       Entity entity = entityManager.createEntity();
 
-      REQUIRE(entityManager.getSignature(entity) == 0);
+      REQUIRE(entityManager.getEntitySignature(entity) == 0);
     }
   }
 
@@ -70,16 +70,16 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
       
       Signature randomSignature;
       randomSignature[0] = 1;
-      entityManager.setSignature(entity, randomSignature);
+      entityManager.setEntitySignature(entity, randomSignature);
 
-      REQUIRE(entityManager.getSignature(entity) == randomSignature);
+      REQUIRE(entityManager.getEntitySignature(entity) == randomSignature);
     }
 
     SECTION("Setting a signature to an invalid entity will cause an exception")
     {
       Signature signature{1};
       REQUIRE_THROWS_AS(
-        entityManager.setSignature(entityManager.kMaxNumEntities, signature),
+        entityManager.setEntitySignature(entityManager.kMaxNumEntities, signature),
         std::out_of_range);
     }
 
@@ -92,7 +92,7 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
       entityManager.deleteEntity(entity);
 
       Signature emptySignature;
-      REQUIRE_THROWS_AS(entityManager.setSignature(entity, emptySignature),
+      REQUIRE_THROWS_AS(entityManager.setEntitySignature(entity, emptySignature),
                         NonExistentEntityError);
     }
   }
@@ -103,9 +103,9 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
     {
       Entity entity = entityManager.createEntity();
       Signature signature{1};
-      entityManager.setSignature(entity, signature);
+      entityManager.setEntitySignature(entity, signature);
 
-      REQUIRE(entityManager.getSignature(entity) == signature);
+      REQUIRE(entityManager.getEntitySignature(entity) == signature);
     }
 
     SECTION(std::string("Getting the signature of an invalid entity ")
@@ -114,7 +114,7 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
       // Passing an ID of kMaxNumEntities should raise an error since
       // the entity IDs start at 0.
       REQUIRE_THROWS_AS(
-        entityManager.getSignature(entityManager.kMaxNumEntities),
+        entityManager.getEntitySignature(entityManager.kMaxNumEntities),
         std::out_of_range);
     }
 
@@ -126,7 +126,7 @@ TEST_CASE("Entity Manager must be able to manage entities properly",
       // To make sure we use a non-existent entity.
       entityManager.deleteEntity(entity);
 
-      REQUIRE_THROWS_AS(entityManager.getSignature(entity),
+      REQUIRE_THROWS_AS(entityManager.getEntitySignature(entity),
                         NonExistentEntityError);
     }
   }
