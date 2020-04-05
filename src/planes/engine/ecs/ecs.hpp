@@ -21,40 +21,38 @@ namespace planes::engine::ecs
     template <class T>
     void registerComponentType()
     {
+      // TODO: There should be an error if a component type has been registered
+      //       twice. Maybe implement this at the ComponentManager level.
       this->componentManager.registerComponentType<T>();
     }
 
     template <class T>
     void addComponentTypeToEntity(const Entity e)
     {
+      this->checkIfEntityExists(e);
+      
       // We need to change the signature of an entity every time a component
       // type has been added to it.
-      //
-      // We're adding the signature first so that the NonExistentEntityError
-      // exception will trigger if the passed entity does not actually exist
-      // without us having to write duplicate code.
-      this->addComponentTypeToEntitySignature<T>(e);
-
       this->componentManager.addComponentTypeToEntity<T>(e);
+      this->addComponentTypeToEntitySignature<T>(e);
     }
 
     template <class T>
     void removeComponentTypeFromEntity(const Entity e)
     {
+      this->checkIfEntityExists(e);
+
       // We need to change the signature of an entity every time a component
       // type has been removed from it.
-      //
-      // We're adding the signature first so that the NonExistentEntityError
-      // exception will trigger if the passed entity does not actually exist
-      // without us having to write duplicate code.
-      this->removeComponentTypeFromEntitySignature<T>(e);
-
       this->componentManager.removeComponentTypeFromEntity<T>(e);
+      this->removeComponentTypeFromEntitySignature<T>(e);
     }
 
     template <class T>
     T& getEntityComponentType(const Entity e)
     {
+      this->checkIfEntityExists(e);
+
       return this->componentManager.getEntityComponentType<T>(e);
     }
 
@@ -79,6 +77,8 @@ namespace planes::engine::ecs
     template <class T>
     void addEntityToSystem(const Entity e)
     {
+      this->checkIfEntityExists(e);
+
       Signature entitySignature = this->entityManager.getEntitySignature(e);
       Signature systemSignature = this->systemManager.getSystemSignature<T>();
       if ((entitySignature & systemSignature) == systemSignature) {
@@ -107,10 +107,14 @@ namespace planes::engine::ecs
     template <class T>
     void removeEntityFromSystem(const Entity e)
     {
+      this->checkIfEntityExists(e);
+
       this->systemManager.removeEntityFromSystem<T>(e);
     }
 
   private:
+    void checkIfEntityExists(const Entity e);
+
     template <class T>
     void addComponentTypeToEntitySignature(const Entity e)
     {

@@ -35,6 +35,13 @@ namespace planes::engine::ecs
     IncompatibleEntitySignatureError(const std::string what_arg);
   };
 
+  class NonSystemMemberEntityError : public std::runtime_error
+  {
+  public:
+    NonSystemMemberEntityError(const char* what_arg);
+    NonSystemMemberEntityError(const std::string what_arg);
+  };
+
   class UnregisteredEntityError : public std::runtime_error
   {
   public:

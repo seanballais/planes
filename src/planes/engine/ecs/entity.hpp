@@ -20,6 +20,7 @@ namespace planes::engine::ecs
   {
   public:
     NonExistentEntityError(const char* what_arg);
+    NonExistentEntityError(const std::string what_arg);
   };
 
   using Entity = unsigned int;
@@ -97,17 +98,17 @@ namespace planes::engine::ecs
       this->entitySignatures[entity] = signature;
     }
 
+    bool doesEntityExist(const Entity entity)
+    {
+      auto it = this->unusedEntities.find(entity);
+      return it == this->unusedEntities.end();
+    }
+
     const std::uint16_t kMaxNumEntities = maxNumEntities;
   private:
     bool isEntityInRange(const Entity entity)
     {
       return entity >= 0 && entity < this->kMaxNumEntities;
-    }
-
-    bool doesEntityExist(const Entity entity)
-    {
-      auto it = this->unusedEntities.find(entity);
-      return it == this->unusedEntities.end();
     }
 
     Signature entitySignatures[maxNumEntities];

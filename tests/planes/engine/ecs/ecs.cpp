@@ -130,14 +130,12 @@ TEST_CASE("ECS must be able to perform its tasks properly "
         TestSystem0(ComponentManager& componentManager)
             : System(componentManager)
         {
-          this->registerRequiredComponentType<TestComponent>();
           this->registerRequiredComponentType<TestComponent0>();
         }
 
         void update() override {}
       };
 
-      ecs.registerComponentType<TestComponent>();
       ecs.registerComponentType<TestComponent0>();
 
       ecs.registerSystem<TestSystem>();
@@ -145,10 +143,14 @@ TEST_CASE("ECS must be able to perform its tasks properly "
 
       const Entity e = ecs.createEntity();
       REQUIRE_NOTHROW(ecs.addComponentTypeToEntity<TestComponent>(e));
-      REQUIRE_NOTHROW(ecs.addComponentTypeToEntity<TestComponent0>(e));
+
+      // So that the entity's signature will no longer match with System's.
+      ecs.removeComponentTypeFromEntity<TestComponent>(e);
 
       // Since the entity signature and TestSystem's signature no longer match.
       REQUIRE_THROWS(ecs.addEntityToSystem<TestSystem>(e));
+
+      REQUIRE_NOTHROW(ecs.addComponentTypeToEntity<TestComponent0>(e));
 
       // Since the entity has already been added to TestSystem0.
       REQUIRE_THROWS(ecs.addEntityToSystem<TestSystem0>(e));
@@ -218,8 +220,6 @@ TEST_CASE("ECS must be able to perform its tasks properly "
 
       const Entity e = ecs.createEntity();
       ecs.addComponentTypeToEntity<TestComponent>(e);
-
-      ecs.addEntityToSystem<TestSystem>(e);
 
       REQUIRE_NOTHROW(ecs.removeComponentTypeFromEntity<TestComponent>(e));
 
@@ -320,7 +320,8 @@ TEST_CASE("ECS must be able to perform its tasks properly "
     SECTION("Adding a non-existent entity to a system should cause an "
             "exception")
     {
-      REQUIRE_THROWS_AS(ecs.addEntityToSystem<TestSystem>(e),
+      const Entity nonExistentEntity = 15;
+      REQUIRE_THROWS_AS(ecs.addEntityToSystem<TestSystem>(nonExistentEntity),
                         NonExistentEntityError);
     }
 
@@ -364,8 +365,9 @@ TEST_CASE("ECS must be able to perform its tasks properly "
             "exception")
     {
       const Entity nonExistentEntity = 15;
-      REQUIRE_THROWS_AS(ecs.removeEntityFromSystem<TestSystem>(e),
-                        NonExistentEntityError);
+      REQUIRE_THROWS_AS(
+        ecs.removeEntityFromSystem<TestSystem>(nonExistentEntity),
+        NonExistentEntityError);
     }
 
     SECTION("Removing the same entity twice from a system should cause an "
